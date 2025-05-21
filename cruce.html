@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">Cruce de Inventarios</h4>
+                        </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Subir archivo AS/400 (Excel)</label>
+                            <input type="file" name="archivo_as400" class="form-control form-control-lg" accept=".xlsx,.xls,.csv" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Subir archivo Casa Ricardo (Excel)</label>
+                            <input type="file" name="archivo_casa_ricardo" class="form-control form-control-lg" accept=".xlsx,.xls,.csv" required>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-arrow-left-right"></i>
+                                Cruzar y Ver Resumen
+                            </button>
+                        </div>
+                    </form>
+
+                    {% if mensaje %}
+                        <div class="alert alert-info text-center mt-4">{{ mensaje }}</div>
+                    {% endif %}
+
+                    {% if resumen %}
+                        <hr>
+                        <h5 class="text-center mb-4">Diferencias de stock detectadas</h5>
+                        <div class="row justify-content-center mb-4">
+                            <div class="col-md-6">
+                                <div class="card border-danger shadow-sm">
+                                    <div class="card-body text-center">
+                                        <span class="display-5 text-danger fw-bold">
+                                            <i class="bi bi-exclamation-triangle-fill"></i>
+                                            {{ resumen.diferente_stock }}
+                                        </span>
+                                        <div class="mt-2 text-muted small">productos con diferencia</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% if resumen and resumen.diferente_stock > 0 %}
+                        <div id="mensaje-diferencias" class="alert alert-warning alert-dismissible fade show text-center fw-bold mt-4" role="alert" style="font-size:1.1rem;">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Hemos encontrado diferencias
+                        </div>
+                        {% endif %}
+
+                        {% if archivo_listo %}
+                        <div class="text-center my-4">
+                            <a href="{{ url_for('descargar_cruce') }}" class="btn btn-outline-primary btn-lg shadow-sm">
+                                <i class="bi bi-download"></i> Descargar resultado en Excel
+                            </a>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+
+                    {# ------ SOLO EN AS400 CON EXISTENCIAS ------ #}
+                    {% if hay_faltantes_as400 %}
+                        <div class="alert alert-warning alert-dismissible fade show text-center fw-bold mt-4" role="alert" style="font-size:1.1rem;">
+                            <i class="bi bi-exclamation-diamond-fill me-2"></i>
+                            ¡Atención! Hay {{ num_faltantes_as400 }} productos en AS/400 que no aparecen en Casa Ricardo y tienen existencias.
+                        </div>
+                        <div class="card border-warning mb-4 shadow-sm">
+                            <div class="card-header bg-warning text-dark">
+                                <h6 class="mb-0 text-center">
+                                    Artículos solo en AS/400 (primeros 30)
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered table-hover align-middle text-center mb-0">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Descripción</th>
+                                                <th>Existencias AS/400</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for prod in lista_solo_as400 %}
+                                                <tr>
+                                                    <td>{{ prod['DESCRIPCION'] }}</td>
+                                                    <td class="fw-bold text-danger">{{ prod['Cantidad Física_AS400'] }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="text-muted small mt-2 mb-0">
+                                    Si quieres ver todos los resultados, descarga el Excel completo.
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {# ------ ARTÍCULOS CON DIFERENCIAS DE STOCK ------ #}
+                    {% if tabla_diferencias %}
+                        <div class="card border-secondary mb-4 shadow-sm">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0 text-center">
+                                    <i class="bi bi-list-ol"></i>
+                                    Artículos con diferencia de stock <span class="text-light small">(primeros 50)</span>
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover table-sm align-middle text-center">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                {% if tabla_diferencias[0]['tienda'] is defined %}
+                                                    <th>Tienda</th>
+                                                {% endif %}
+                                                <th>Descripción</th>
+                                                <th>Stock Físico</th>
+                                                <th>Stock AS/400</th>
+                                                <th>Diferencia</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for row in tabla_diferencias %}
+                                            <tr>
+                                                {% if row['tienda'] is defined %}
+                                                    <td>{{ row['tienda'] }}</td>
+                                                {% endif %}
+                                                <td>{{ row['DESCRIPCION'] }}</td>
+                                                <td>{{ row['Cantidad Física_CASA'] }}</td>
+                                                <td>{{ row['Cantidad Física_AS400'] }}</td>
+                                                <td>
+                                                    {% if row['DIFERENCIA'] > 0 %}
+                                                        <span class="badge bg-success">{{ row['DIFERENCIA'] }}</span>
+                                                    {% elif row['DIFERENCIA'] < 0 %}
+                                                        <span class="badge bg-danger">{{ row['DIFERENCIA'] }}</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">{{ row['DIFERENCIA'] }}</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="text-muted small mt-2 mb-0">
+                                    Si quieres ver todos los resultados, descarga el Excel completo.
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Oculta el mensaje tras 3 segundos (3000 ms)
+    setTimeout(function() {
+        var mensaje = document.getElementById('mensaje-diferencias');
+        if (mensaje) {
+            mensaje.classList.remove('show');
+        }
+    }, 3000);
+</script>
+{% endblock %}

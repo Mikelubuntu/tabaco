@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Inventario</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+<!-- Botón que abre el modal -->
+<a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#passwordModal">
+    <i class="bi bi-plus-lg"></i>
+    Agregar producto
+</a>
+
+<!-- Modal de Bootstrap para pedir la contraseña -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="passwordForm" onsubmit="return checkPassword();">
+        <div class="modal-header">
+          <h5 class="modal-title" id="passwordModalLabel">Contraseña requerida</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="passwordInput" class="form-label">Introduce la contraseña para agregar productos:</label>
+            <input type="password" class="form-control" id="passwordInput" autofocus required>
+            <div id="passwordError" class="form-text text-danger d-none"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">Aceptar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+    </div>
+    <table class="table table-bordered table-striped align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>COD. ARTÍCULO</th>
+                <th>DESCRIPCIÓN</th>
+                <th>COD. BARRAS</th>
+                <th>Tienda</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in productos %}
+            <tr>
+                <td>{{ p['id'] }}</td>
+                <td>{{ p['codigo'] }}</td>
+                <td>{{ p['descripcion'] }}</td>
+                <td>{{ p['cod_barras'] }}</td>
+                <td>{{ p['tienda'] }}</td>
+                <td>
+                    <form action="{{ url_for('eliminar_producto', id=p['id']) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('¿Seguro que deseas eliminar este producto?');">
+                            Eliminar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if productos|length == 0 %}
+            <tr>
+                <td colspan="6" class="text-center">No hay productos en inventario.</td>
+            </tr>
+            {% endif %}
+            <script>
+function checkPassword() {
+    var pass = document.getElementById("passwordInput").value;
+    var error = document.getElementById("passwordError");
+    if (pass === "0022") {
+        // Redirige
+        window.location.href = "{{ url_for('agregar_producto') }}";
+        return false; // Previene submit real
+    } else {
+        error.textContent = "Contraseña incorrecta.";
+        error.classList.remove("d-none");
+        return false; // No cierra el modal ni envía el form
+    }
+}
+</script>
+<script>
+var passwordModal = document.getElementById('passwordModal');
+passwordModal.addEventListener('hidden.bs.modal', function () {
+    document.getElementById("passwordForm").reset();
+    document.getElementById("passwordError").classList.add("d-none");
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+        </tbody>
+    </table>
+</div>
+{% endblock %}

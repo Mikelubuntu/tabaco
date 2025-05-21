@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Conteos Físicos PDF</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; font-size: 12px; }
+        th, td { border: 1px solid #555; padding: 4px; text-align: left; }
+        th { background: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h2>Conteos Físicos</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tienda</th>
+                <th>Código</th>
+                <th>Descripción</th>
+                <th>Código Barras</th>
+                <th>Stock Físico</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in conteos %}
+            <tr>
+                <td>{{ c.id }}</td>
+                <td>{{ c.tienda }}</td>
+                <td>{{ c.codigo }}</td>
+                <td>{{ c.descripcion }}</td>
+                <td>{{ c.cod_barras }}</td>
+                <td>{{ c.stock_fisico }}</td>
+                <td>{{ c.fecha }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
