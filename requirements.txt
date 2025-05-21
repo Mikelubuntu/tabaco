@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Flask
 pandas
 openpyxl
@@ -9,3 +10,16 @@ qrcode
 pyHanko
 pyhanko-certvalidator
 python-dateutil
+=======
+Flask
+pandas
+openpyxl
+xhtml2pdf
+reportlab
+jinja2
+lxml
+qrcode
+pyHanko
+pyhanko-certvalidator
+python-dateutil
+>>>>>>> b941901bcb68c5523b74da7ad06e59dbd1a0516a
