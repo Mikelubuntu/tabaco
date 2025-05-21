@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-10">
-        <h2 class="mb-4">Histórico de Inventarios Guardados</h2>
+    <div class="col-lg-10 col-12">
+        <h2 class="mb-4 text-center text-md-start">Histórico de Inventarios Guardados</h2>
         <div class="alert alert-info">
             Aquí puedes consultar todos los inventarios físicos guardados con el nombre del responsable y los productos registrados en cada momento.
         </div>
@@ -49,4 +49,24 @@
         </div>
     </div>
 </div>
+<style>
+@media (max-width: 600px) {
+    .row .col-lg-10 {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+    h2.mb-4 {
+        font-size: 1.18rem;
+    }
+    .btn, .form-control, .form-select {
+        font-size: 0.96rem !important;
+    }
+    .table-responsive {
+        font-size: 0.94rem;
+    }
+    .list-group-item {
+        font-size: 0.94rem;
+    }
+}
+</style>
 {% endblock %}

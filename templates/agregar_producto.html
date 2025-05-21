@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Agregar Producto</h2>
-    <form method="post" class="card p-4 shadow-sm">
+    <h2 class="mb-4 text-center text-md-start">Agregar Producto</h2>
+    <form method="post" class="card p-4 shadow-sm mx-auto" style="max-width: 520px;">
         <div class="mb-3">
             <label for="codigo" class="form-label">COD. ARTÍCULO</label>
-            <input type="text" id="codigo" name="codigo" class="form-control" required>
+            <input type="text" id="codigo" name="codigo" class="form-control" required autocomplete="off">
         </div>
         <div class="mb-3">
             <label for="descripcion" class="form-label">DESCRIPCIÓN</label>
-            <input type="text" id="descripcion" name="descripcion" class="form-control" required>
+            <input type="text" id="descripcion" name="descripcion" class="form-control" required autocomplete="off">
         </div>
         <div class="mb-3">
             <label for="cod_barras" class="form-label">COD. BARRAS</label>
-            <input type="text" id="cod_barras" name="cod_barras" class="form-control">
+            <input type="text" id="cod_barras" name="cod_barras" class="form-control" autocomplete="off">
         </div>
         <div class="mb-3">
             <label for="tienda" class="form-label">Tienda</label>
@@ -33,4 +33,17 @@
         {% endif %}
     </form>
 </div>
+<style>
+    @media (max-width: 600px) {
+        .card.p-4 {
+            padding: 1rem !important;
+        }
+        .card .form-label {
+            font-size: 0.98rem;
+        }
+        h2.mb-4 {
+            font-size: 1.3rem;
+        }
+    }
+</style>
 {% endblock %}

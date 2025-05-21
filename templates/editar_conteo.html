@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Editar Conteo Físico</h2>
-    <form action="{{ url_for('editar_conteo', id=conteo['id']) }}" method="post" class="card p-4 shadow-sm">
+    <h2 class="mb-4 text-center text-md-start">Editar Conteo Físico</h2>
+    <form action="{{ url_for('editar_conteo', id=conteo['id']) }}" method="post" class="card p-4 shadow-sm mx-auto" style="max-width:500px;">
         <div class="mb-3">
             <label class="form-label">Tienda:</label>
             <input type="text" class="form-control" value="{{ conteo['tienda'] }}" readonly>
@@ -23,10 +23,23 @@
             <label for="stock_fisico" class="form-label"><strong>Cantidad física</strong>:</label>
             <input type="number" name="stock_fisico" id="stock_fisico" class="form-control" value="{{ conteo['stock_fisico'] }}" min="0" required autofocus>
         </div>
-        <div class="d-flex justify-content-between">
-            <button type="submit" class="btn btn-primary">Guardar cambios</button>
-            <a href="{{ url_for('conteos_fisicos') }}" class="btn btn-secondary">Cancelar</a>
+        <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
+            <button type="submit" class="btn btn-primary w-100 w-md-auto">Guardar cambios</button>
+            <a href="{{ url_for('conteos_fisicos') }}" class="btn btn-secondary w-100 w-md-auto">Cancelar</a>
         </div>
     </form>
 </div>
+<style>
+@media (max-width: 600px) {
+    .card.p-4 {
+        padding: 1rem !important;
+    }
+    h2.mb-4 {
+        font-size: 1.2rem;
+    }
+    .btn, .form-control {
+        font-size: 0.96rem !important;
+    }
+}
+</style>
 {% endblock %}

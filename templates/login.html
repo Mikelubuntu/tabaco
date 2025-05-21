@@ -11,7 +11,7 @@ body {
 {% block content %}
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-5">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-5">
             <div class="card login-card p-4">
                 <h4 class="mb-4 text-center">
                     <i class="bi bi-lock"></i> Acceso a Casa Ricardo: Gestión de Tabacos
@@ -19,7 +19,7 @@ body {
                 <form method="post">
                     <div class="mb-3">
                         <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" name="password" id="password" required autofocus>
+                        <input type="password" class="form-control" name="password" id="password" required autofocus autocomplete="off">
                     </div>
                     {% if error %}
                     <div class="alert alert-danger text-center">{{ error }}</div>
@@ -37,10 +37,21 @@ body {
         background: rgba(255,255,255,0.92);
         border-radius: 15px;
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.17);
-        margin-top: 90px;
+        margin-top: 60px;
+        margin-bottom: 60px;
         /* Glass effect: */
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(5px);
+    }
+    @media (max-width: 576px) {
+        .login-card {
+            padding: 1.2rem !important;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        .login-card h4 {
+            font-size: 1.2rem;
+        }
     }
 </style>
 {% endblock %}

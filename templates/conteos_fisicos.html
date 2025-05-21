@@ -3,9 +3,9 @@
 <div class="container mt-4">
     <h2>Conteos Físicos en Tienda Guardados <span style="font-size:0.7em;" class="text-muted">(Histórico completo)</span></h2>
     <div class="mb-3">
-    <a href="{{ url_for('exportar_conteos_excel', tienda=tienda_seleccionada) }}" class="btn btn-success btn-sm">Descargar Excel</a>
-    <a href="{{ url_for('exportar_conteos_pdf', tienda=tienda_seleccionada) }}" class="btn btn-danger btn-sm">Descargar PDF</a>
-</div>
+        <a href="{{ url_for('exportar_conteos_excel', tienda=tienda_seleccionada) }}" class="btn btn-success btn-sm mb-1">Descargar Excel</a>
+        <a href="{{ url_for('exportar_conteos_pdf', tienda=tienda_seleccionada) }}" class="btn btn-danger btn-sm mb-1">Descargar PDF</a>
+    </div>
     <p class="mb-3 text-muted">
         Cada registro corresponde a un recuento físico realizado en tienda. <br>
         Puedes filtrar por tienda, editar o eliminar conteos individuales, o borrar todos los históricos si lo deseas.
@@ -15,7 +15,7 @@
             <div class="col-auto">
                 <label for="tienda" class="form-label mb-0">Filtrar por tienda:</label>
             </div>
-            <div class="col-auto">
+            <div class="col-8 col-sm-auto">
                 <select name="tienda" id="tienda" class="form-select">
                     <option value="">Todas</option>
                     {% for tienda in tiendas %}
@@ -46,7 +46,6 @@
                 <tr>
                     <td>{{ c['tienda'] }}</td>
                     <td>
-                        {# Muestra la fecha con formato bonito si quieres #}
                         {{ c['fecha'][:19].replace('T',' ') if c['fecha'] else '-' }}
                     </td>
                     <td>{{ c['codigo'] }}</td>
@@ -55,10 +54,10 @@
                     <td>{{ c['stock_fisico'] }}</td>
                     <td>
                         <!-- Editar -->
-                        <a href="{{ url_for('editar_conteo', id=c['id']) }}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="{{ url_for('editar_conteo', id=c['id']) }}" class="btn btn-warning btn-sm mb-1">Editar</a>
                         <!-- Eliminar individual -->
                         <form action="{{ url_for('eliminar_conteo', id=c['id']) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este conteo?');">Eliminar</button>
+                            <button type="submit" class="btn btn-danger btn-sm mb-1" onclick="return confirm('¿Seguro que deseas eliminar este conteo?');">Eliminar</button>
                         </form>
                     </td>
                 </tr>
@@ -73,7 +72,26 @@
     </div>
     <!-- Botón para borrar todos los conteos físicos -->
     <form method="POST" action="{{ url_for('eliminar_todos_conteos') }}" onsubmit="return confirm('¿Seguro que deseas borrar todos los conteos?');">
-        <button type="submit" class="btn btn-danger">Borrar todos los conteos</button>
+        <button type="submit" class="btn btn-danger mt-2 w-100 w-md-auto">Borrar todos los conteos</button>
     </form>
 </div>
+<style>
+@media (max-width: 600px) {
+    .container.mt-4 {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+    .table-responsive {
+        font-size: 0.93rem;
+    }
+    .btn, .form-select, .form-control {
+        font-size: 0.96rem !important;
+    }
+    h2 {
+        font-size: 1.22rem;
+        margin-bottom: 1rem !important;
+        text-align: center;
+    }
+}
+</style>
 {% endblock %}

@@ -2,10 +2,10 @@
 <html>
 <head>
     <title>Casa Ricardo: Gestión de Tabacos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    
-    {# Bloque para sobreescribir el fondo desde otras plantillas #}
+
     {% block background_style %}
     <style>
     body {
@@ -100,6 +100,36 @@
         @keyframes fadeIn {
             to { opacity: 1; }
         }
+
+        /* Responsive tweaks */
+        @media (max-width: 991.98px) {
+            .navbar .container {
+                max-width: 100%;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            .navbar .navbar-brand {
+                font-size: 1.08rem;
+            }
+        }
+        @media (max-width: 600px) {
+            html, body {
+                font-size: 15px;
+            }
+            .navbar .navbar-brand {
+                font-size: 0.99rem;
+            }
+            .card, .modal-content {
+                border-radius: 10px !important;
+            }
+            .container {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+            .table {
+                font-size: 0.93rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -120,22 +150,21 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('cruce_inventario') }}">Cruce Inventario</a></li>
                     {% if session['logueado'] %}
                     <li class="nav-item">
-    <a class="nav-link" href="{{ url_for('inventario_historico') }}">
-        <i class="bi bi-clock-history"></i> Históricos de Inventario
-    </a>
-</li>
-                        <li class="nav-item">
-                            <a class="nav-link text-danger" href="{{ url_for('logout') }}">
-                                <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-                            </a>
-                        </li>
+                        <a class="nav-link" href="{{ url_for('inventario_historico') }}">
+                            <i class="bi bi-clock-history"></i> Históricos de Inventario
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="{{ url_for('logout') }}">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                        </a>
+                    </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
     <div class="container">
-        {# SOLO SE MUESTRA EN LA PORTADA/INICIO #}
         {% if request.path == "/" %}
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body">
@@ -159,9 +188,9 @@
                         Consulta todos los conteos físicos registrados por tienda, producto y fecha. Ideal para control, auditorías y exportaciones.
                     </li>
                     <li class="list-group-item">
-        <strong>Cruce de Inventario:</strong>
-        Sube el archivo de inventario del AS400 y el de Casa Ricardo para comparar existencias automáticamente. Detecta diferencias de stock y faltantes de productos entre ambos sistemas.
-    </li>
+                        <strong>Cruce de Inventario:</strong>
+                        Sube el archivo de inventario del AS400 y el de Casa Ricardo para comparar existencias automáticamente. Detecta diferencias de stock y faltantes de productos entre ambos sistemas.
+                    </li>
                 </ul>
                 <div class="text-center">
                     <em>¡Utiliza el menú superior para acceder a cada sección!</em>

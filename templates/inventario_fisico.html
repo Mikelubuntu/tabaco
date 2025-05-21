@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-10">
-        <h2 class="mb-4">Inventario Físico por Tienda</h2>
+    <div class="col-lg-10 col-12">
+        <h2 class="mb-4 text-center text-md-start">Inventario Físico por Tienda</h2>
         {% if mensaje %}
             <div class="alert alert-success text-center">{{ mensaje }}</div>
         {% endif %}
@@ -185,4 +185,21 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 
+<style>
+@media (max-width: 600px) {
+    .row .col-lg-10 {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+    h2.mb-4 {
+        font-size: 1.17rem;
+    }
+    .btn, .form-control, .form-select {
+        font-size: 0.96rem !important;
+    }
+    .table-responsive {
+        font-size: 0.93rem;
+    }
+}
+</style>
 {% endblock %}

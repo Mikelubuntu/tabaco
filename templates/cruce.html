@@ -2,11 +2,11 @@
 {% block content %}
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-12 col-md-8 col-lg-7">
             <div class="card shadow-sm">
                 <div class="card-header bg-dark text-white">
-                    <h4 class="mb-0">Cruce de Inventarios</h4>
-                        </div>
+                    <h4 class="mb-0 text-center text-md-start">Cruce de Inventarios</h4>
+                </div>
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data">
                         <div class="mb-3">
@@ -33,7 +33,7 @@
                         <hr>
                         <h5 class="text-center mb-4">Diferencias de stock detectadas</h5>
                         <div class="row justify-content-center mb-4">
-                            <div class="col-md-6">
+                            <div class="col-12 col-sm-8 col-md-6">
                                 <div class="card border-danger shadow-sm">
                                     <div class="card-body text-center">
                                         <span class="display-5 text-danger fw-bold">
@@ -61,7 +61,6 @@
                         {% endif %}
                     {% endif %}
 
-                    {# ------ SOLO EN AS400 CON EXISTENCIAS ------ #}
                     {% if hay_faltantes_as400 %}
                         <div class="alert alert-warning alert-dismissible fade show text-center fw-bold mt-4" role="alert" style="font-size:1.1rem;">
                             <i class="bi bi-exclamation-diamond-fill me-2"></i>
@@ -99,7 +98,6 @@
                         </div>
                     {% endif %}
 
-                    {# ------ ARTÍCULOS CON DIFERENCIAS DE STOCK ------ #}
                     {% if tabla_diferencias %}
                         <div class="card border-secondary mb-4 shadow-sm">
                             <div class="card-header bg-secondary text-white">
@@ -151,7 +149,6 @@
                             </div>
                         </div>
                     {% endif %}
-
                 </div>
             </div>
         </div>
@@ -166,4 +163,21 @@
         }
     }, 3000);
 </script>
+<style>
+@media (max-width: 600px) {
+    .card .card-header h4, .card .card-header h5, .card .card-header h6 {
+        font-size: 1.1rem !important;
+        text-align: center !important;
+    }
+    .btn, .form-control, .form-select {
+        font-size: 0.96rem !important;
+    }
+    table {
+        font-size: 0.92rem !important;
+    }
+    .display-5 {
+        font-size: 1.4rem !important;
+    }
+}
+</style>
 {% endblock %}
