@@ -1,63 +1,65 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-10 col-12">
-        <h2 class="mb-4 text-center text-md-start">Inventario Físico por Tienda</h2>
-        {% if mensaje %}
-            <div class="alert alert-success text-center">{{ mensaje }}</div>
-        {% endif %}
-        <form method="post">
-            <div class="mb-3">
-                <label for="tienda" class="form-label">Selecciona la Tienda</label>
-                <select id="tienda" name="tienda" class="form-select" required>
-                    {% for tienda in tiendas %}
-                        <option value="{{ tienda }}">{{ tienda }}</option>
-                    {% endfor %}
-                </select>
+<div class="row justify-content-center fade-in">
+    <div class="col-lg-10">
+        <div class="card p-4 glass-card shadow-sm mb-4">
+            <h2 class="mb-4 text-center"><i class="bi bi-box-seam"></i> Inventario Físico por Tienda</h2>
+            <div class="alert alert-info mb-4">
+                <strong>¿Cómo funciona?</strong>
+                <ul class="mb-0">
+                    <li><b>Cada vez que completes y guardes este formulario, se crea un nuevo recuento histórico</b> para cada producto contado en la tienda seleccionada.</li>
+                    <li><b>No se borran conteos anteriores.</b></li>
+                    <li><b>Puedes sumar productos rápidamente con el escáner de código de barras.</b></li>
+                </ul>
             </div>
-            <!-- Campo para escanear código de barras -->
-            <div class="mb-3">
-                <input id="scanner" type="text" class="form-control" placeholder="Escanea un código de barras aquí..." autofocus autocomplete="off">
-            </div>
-            <div class="table-responsive mb-4" style="max-height:500px; overflow:auto;">
+            {% if mensaje %}
+                <div class="alert alert-success text-center">{{ mensaje }}</div>
+            {% endif %}
+            <form method="post">
                 <div class="mb-3">
-                    <input id="buscador" type="text" class="form-control" placeholder="Buscar por Código, Descripción o Código de Barras...">
+                    <label for="tienda" class="form-label">Selecciona la Tienda</label>
+                    <select id="tienda" name="tienda" class="form-select" required>
+                        {% for tienda in tiendas %}
+                            <option value="{{ tienda }}">{{ tienda }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-                <table class="table table-bordered table-striped align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>COD. ARTÍCULO</th>
-                            <th>DESCRIPCIÓN</th>
-                            <th>COD. BARRAS</th>
-                            <th>Cantidad Física</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for p in productos %}
-                        <tr data-codbarras="{{ p['cod_barras'] }}">
-                            <td>{{ p['codigo'] }}</td>
-                            <td>{{ p['descripcion'] }}</td>
-                            <td>{{ p['cod_barras'] }}</td>
-                            <td>
-                                <input type="number" min="0" class="form-control" name="stock_{{ p['codigo'] }}" placeholder="Cantidad">
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="d-grid">
-                <button type="button" class="btn btn-primary" id="btnGuardarInventario">Guardar Inventario Físico</button>
-            </div>
-        </form>
-        <hr>
-        <div class="alert alert-info mt-4">
-            <strong>¿Cómo funciona?</strong>
-            <ul class="mb-0">
-                <li><b>Cada vez que completes y guardes este formulario, se crea un nuevo recuento histórico</b> para cada producto contado en la tienda seleccionada.</li>
-                <li><b>No se borran conteos anteriores:</b> puedes consultar el histórico completo en la pestaña <a href="{{ url_for('conteos_fisicos') }}">Conteos en Tienda</a>.</li>
-                <li><b>Puedes sumar productos rápidamente con el escáner de código de barras.</b></li>
-            </ul>
+
+                <!-- Campo para escanear código de barras -->
+                <div class="mb-3">
+                    <input id="scanner" type="text" class="form-control" placeholder="Escanea un código de barras aquí..." autofocus autocomplete="off">
+                </div>
+                <div class="table-responsive mb-4" style="max-height:500px; overflow:auto;">
+                    <div class="mb-3">
+                        <input id="buscador" type="text" class="form-control" placeholder="Buscar por Código, Descripción o Código de Barras...">
+                    </div>
+                    <table class="table table-striped align-middle table-hover glass-table shadow-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>COD. ARTÍCULO</th>
+                                <th>DESCRIPCIÓN</th>
+                                <th>COD. BARRAS</th>
+                                <th>Cantidad Física</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for p in productos %}
+                            <tr data-codbarras="{{ p['cod_barras'] }}">
+                                <td>{{ p['codigo'] }}</td>
+                                <td>{{ p['descripcion'] }}</td>
+                                <td>{{ p['cod_barras'] }}</td>
+                                <td>
+                                    <input type="number" min="0" class="form-control" name="stock_{{ p['codigo'] }}" placeholder="Cantidad">
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-grid">
+                    <button type="button" class="btn btn-primary"><i class="bi bi-save"></i> Guardar Inventario Físico</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -160,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Modal para autor
-    document.getElementById("btnGuardarInventario").onclick = function() {
+    document.querySelector(".btn.btn-primary[type='button']").onclick = function() {
         var modal = new bootstrap.Modal(document.getElementById('modalAutor'));
         modal.show();
     };
@@ -184,22 +186,27 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 });
 </script>
-
 <style>
-@media (max-width: 600px) {
-    .row .col-lg-10 {
-        padding-left: 5px;
-        padding-right: 5px;
+    .glass-card {
+        background: rgba(255,255,255,0.92);
+        border-radius: 18px;
+        box-shadow: 0 8px 32px 0 rgba(31,38,135,0.14);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
     }
-    h2.mb-4 {
-        font-size: 1.17rem;
+    .glass-table {
+        background: rgba(255,255,255,0.81);
+        border-radius: 12px;
+        box-shadow: 0 4px 24px 0 rgba(31,38,135,0.09);
+        backdrop-filter: blur(2.5px);
+        -webkit-backdrop-filter: blur(2.5px);
     }
-    .btn, .form-control, .form-select {
-        font-size: 0.96rem !important;
+    .fade-in {
+        opacity: 0;
+        animation: fadeIn 0.7s forwards;
     }
-    .table-responsive {
-        font-size: 0.93rem;
+    @keyframes fadeIn {
+        to { opacity: 1; }
     }
-}
 </style>
 {% endblock %}

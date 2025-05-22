@@ -18,7 +18,6 @@
     <style>
         .navbar-brand { font-weight: bold; letter-spacing: 1px; }
 
-        /* Glassmorphism botones coloridos y animaciones suaves */
         .btn, .btn:focus, .btn:active {
             background-color: rgba(255, 255, 255, 0.19) !important;
             color: #222 !important;
@@ -133,6 +132,21 @@
     </style>
 </head>
 <body>
+    {% if session.get('logueado') and session.get('token') and request.endpoint not in ['login', 'logout', 'static'] %}
+    <script>
+        const backendToken = "{{ session['token'] }}";
+        const localToken = sessionStorage.getItem('token');
+        if (!localToken) {
+            sessionStorage.setItem('token', backendToken);
+        } else if (localToken !== backendToken) {
+            sessionStorage.removeItem('token');
+            fetch("{{ url_for('logout') }}").then(() => {
+                window.location.href = "{{ url_for('login') }}";
+            });
+        }
+    </script>
+    {% endif %}
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
             <a class="navbar-brand" href="/">
@@ -144,16 +158,19 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/inventario">Inventario</a></li>
                     <li class="nav-item"><a class="nav-link" href="/inventario_fisico">Inventario Físico</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/conteos_fisicos">Conteos en Tienda</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('cruce_inventario') }}">Cruce Inventario</a></li>
-                    {% if session['logueado'] %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('inventario_historico') }}">
-                            <i class="bi bi-clock-history"></i> Históricos de Inventario
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Administración
                         </a>
+                        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                            <li><a class="dropdown-item admin-link" href="/inventario">Inventario</a></li>
+                            <li><a class="dropdown-item admin-link" href="/conteos_fisicos">Conteos en Tienda</a></li>
+                            <li><a class="dropdown-item admin-link" href="/cruce_inventario">Cruce Inventario</a></li>
+                            <li><a class="dropdown-item admin-link" href="/inventario_historico">Históricos de Inventario</a></li>
+                        </ul>
                     </li>
+                    {% if session['logueado'] %}
                     <li class="nav-item">
                         <a class="nav-link text-danger" href="{{ url_for('logout') }}">
                             <i class="bi bi-box-arrow-right"></i> Cerrar sesión
@@ -166,41 +183,131 @@
     </nav>
     <div class="container">
         {% if request.path == "/" %}
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <h2 class="mb-4 text-center">Bienvenido a Casa Ricardo: Gestión de Tabacos</h2>
-                <p class="text-center">Consulta aquí para qué sirve cada sección del sistema:</p>
-                <ul class="list-group mb-4">
-                    <li class="list-group-item">
-                        <strong>Inicio:</strong>
-                        Página principal con información general sobre la aplicación y acceso rápido a las demás funciones.
-                    </li>
-                    <li class="list-group-item">
-                        <strong>Inventario:</strong>
-                        Tabla con todos los productos registrados en el sistema. Permite consultar stock, precios, marcas y agregar nuevos productos.
-                    </li>
-                    <li class="list-group-item">
-                        <strong>Inventario Físico:</strong>
-                        Los operarios realizan el conteo físico real de productos en cada tienda. Selecciona tu tienda, ingresa los conteos y guarda los datos para auditoría.
-                    </li>
-                    <li class="list-group-item">
-                        <strong>Conteos en Tienda:</strong>
-                        Consulta todos los conteos físicos registrados por tienda, producto y fecha. Ideal para control, auditorías y exportaciones.
-                    </li>
-                    <li class="list-group-item">
-                        <strong>Cruce de Inventario:</strong>
-                        Sube el archivo de inventario del AS400 y el de Casa Ricardo para comparar existencias automáticamente. Detecta diferencias de stock y faltantes de productos entre ambos sistemas.
-                    </li>
-                </ul>
-                <div class="text-center">
-                    <em>¡Utiliza el menú superior para acceder a cada sección!</em>
+        <div class="row justify-content-center fade-in">
+            <div class="col-md-9 col-lg-8">
+                <div class="card shadow-sm border-0 mb-4 glass-card text-center p-4">
+                    <h1 class="mb-3" style="font-weight: bold;">
+                        <i class="bi bi-boxes"></i> ¡Bienvenido/a!
+                    </h1>
+                    <h4 class="mb-4" style="color:#31708f;">Casa Ricardo: Gestión de Tabacos</h4>
+
+                    <!-- Gráfico visual de flujo de secciones (informativo, no clicable) -->
+                    <div class="d-flex flex-column align-items-center mb-4 mt-3">
+                        <div class="d-flex align-items-center justify-content-center flex-wrap">
+                            <div class="mx-3 my-2">
+                                <div>
+                                    <i class="bi bi-archive" style="font-size:2.5rem;color:#198754;"></i>
+                                    <div class="fw-bold mt-2">Inventario</div>
+                                    <div class="small text-muted">Registra y consulta productos</div>
+                                </div>
+                            </div>
+                            <div style="font-size:2.2rem; color:#888; margin: 0 10px;">&#8594;</div>
+                            <div class="mx-3 my-2">
+                                <div>
+                                    <i class="bi bi-box-seam" style="font-size:2.5rem;color:#0d6efd;"></i>
+                                    <div class="fw-bold mt-2">Inventario Físico</div>
+                                    <div class="small text-muted">Conteo por tienda</div>
+                                </div>
+                            </div>
+                            <div style="font-size:2.2rem; color:#888; margin: 0 10px;">&#8594;</div>
+                            <div class="mx-3 my-2">
+                                <div>
+                                    <i class="bi bi-list-ul" style="font-size:2.5rem;color:#fd7e14;"></i>
+                                    <div class="fw-bold mt-2">Conteos</div>
+                                    <div class="small text-muted">Histórico y exportación</div>
+                                </div>
+                            </div>
+                            <div style="font-size:2.2rem; color:#888; margin: 0 10px;">&#8594;</div>
+                            <div class="mx-3 my-2">
+                                <div>
+                                    <i class="bi bi-arrow-left-right" style="font-size:2.5rem;color:#20c997;"></i>
+                                    <div class="fw-bold mt-2">Cruce</div>
+                                    <div class="small text-muted">Comparar inventarios</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="lead mb-2 mt-2">
+                        Accede a cada sección usando el menú superior.<br>
+                        <span class="text-muted small">Las áreas protegidas requieren contraseña de administrador.</span>
+                    </p>
+
+                    <hr class="my-4">
+                    <div class="text-muted small">Desarrollado por Casa Ricardo S.A &copy; 2024</div>
                 </div>
             </div>
         </div>
+        <style>
+        a.text-decoration-none:hover i {
+            filter: brightness(1.20) drop-shadow(0 0 2px #b8e0ff);
+            transform: scale(1.09);
+            transition: all 0.15s;
+        }
+        </style>
         {% endif %}
 
         {% block content %}{% endblock %}
     </div>
+
+    <div class="modal fade" id="adminPasswordModal" tabindex="-1" aria-labelledby="adminPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form id="adminPasswordForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="adminPasswordModalLabel">Contraseña de Administración</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="password" class="form-control" id="adminPasswordInput" placeholder="Contraseña de Administración" required autofocus>
+                        <div id="adminPasswordError" class="form-text text-danger d-none"></div>
+                        <input type="hidden" id="adminTargetUrl">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Entrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    const ADMIN_PASS = "conex"; // Cambia esto por tu contraseña de admin
+
+    document.querySelectorAll(".admin-link").forEach(link => {
+        link.addEventListener("click", function(e) {
+            if (sessionStorage.getItem("admin_ok") === "1") {
+                return;
+            }
+            e.preventDefault();
+            document.getElementById("adminTargetUrl").value = this.getAttribute("href");
+            var modal = new bootstrap.Modal(document.getElementById('adminPasswordModal'));
+            modal.show();
+        });
+    });
+
+    document.getElementById("adminPasswordForm").onsubmit = function(e) {
+        e.preventDefault();
+        var input = document.getElementById("adminPasswordInput");
+        var error = document.getElementById("adminPasswordError");
+        if (input.value === ADMIN_PASS) {
+            error.classList.add("d-none");
+            sessionStorage.setItem("admin_ok", "1");
+            window.location.href = document.getElementById("adminTargetUrl").value;
+        } else {
+            error.textContent = "Contraseña incorrecta.";
+            error.classList.remove("d-none");
+            input.value = "";
+            input.focus();
+        }
+    };
+    document.getElementById('adminDropdown').addEventListener('show.bs.dropdown', function (e) {
+        setTimeout(() => {
+            document.querySelector('.dropdown-menu[aria-labelledby="adminDropdown"]').classList.add('show');
+        }, 10);
+    });
+    </script>
 </body>
 </html>

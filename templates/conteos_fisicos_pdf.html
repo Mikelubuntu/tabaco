@@ -1,52 +1,57 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Conteos Físicos PDF</title>
-    <style>
-        table { border-collapse: collapse; width: 100%; font-size: 12px; }
-        th, td { border: 1px solid #555; padding: 4px; text-align: left; }
-        th { background: #f2f2f2; }
-        @media (max-width: 600px) {
-            body {
-                font-size: 11px;
-            }
-            table, th, td {
-                font-size: 10px !important;
-            }
-            h2 {
-                font-size: 1rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <h2>Conteos Físicos</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Tienda</th>
-                <th>Código</th>
-                <th>Descripción</th>
-                <th>Código Barras</th>
-                <th>Stock Físico</th>
-                <th>Fecha</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for c in conteos %}
-            <tr>
-                <td>{{ c.id }}</td>
-                <td>{{ c.tienda }}</td>
-                <td>{{ c.codigo }}</td>
-                <td>{{ c.descripcion }}</td>
-                <td>{{ c.cod_barras }}</td>
-                <td>{{ c.stock_fisico }}</td>
-                <td>{{ c.fecha }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container fade-in">
+    <div class="card p-4 glass-card">
+        <h3 class="mb-4 text-center"><i class="bi bi-file-earmark-pdf"></i> Exportar Conteos PDF</h3>
+        <div class="table-responsive">
+            <table class="table table-striped align-middle table-hover shadow-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Tienda</th>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Cód. Barras</th>
+                        <th>Cantidad Física</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for c in conteos %}
+                    <tr>
+                        <td>{{ c.id }}</td>
+                        <td>{{ c.tienda }}</td>
+                        <td>{{ c.codigo }}</td>
+                        <td>{{ c.descripcion }}</td>
+                        <td>{{ c.cod_barras }}</td>
+                        <td>{{ c.stock_fisico }}</td>
+                        <td>{{ c.fecha }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No hay conteos registrados.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<style>
+    .glass-card {
+        background: rgba(255,255,255,0.92);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px 0 rgba(31,38,135,0.14);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
+    }
+    .fade-in {
+        opacity: 0;
+        animation: fadeIn 0.7s forwards;
+    }
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+</style>
+{% endblock %}

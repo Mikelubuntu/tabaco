@@ -1,72 +1,66 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-10 col-12">
-        <h2 class="mb-4 text-center text-md-start">Histórico de Inventarios Guardados</h2>
-        <div class="alert alert-info">
-            Aquí puedes consultar todos los inventarios físicos guardados con el nombre del responsable y los productos registrados en cada momento.
-        </div>
+<div class="container fade-in">
+    <div class="card p-4 glass-card shadow-sm mb-4">
+        <h3 class="mb-3 text-center"><i class="bi bi-clock-history"></i> Históricos de Inventario</h3>
         <div class="table-responsive">
-            <table class="table table-bordered table-striped align-middle">
-                <thead class="table-dark">
+            <table class="table table-striped align-middle table-hover shadow-sm">
+                <thead class="table-light">
                     <tr>
-                        <th>Fecha/Hora</th>
+                        <th>ID</th>
+                        <th>Autor</th>
                         <th>Tienda</th>
-                        <th>Responsable</th>
-                        <th>Productos inventariados</th>
+                        <th>Fecha</th>
+                        <th>Productos</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for inv in historicos %}
+                {% for h in historicos %}
                     <tr>
-                        <td>{{ inv.fecha[:19].replace('T',' ') if inv.fecha else '-' }}</td>
-                        <td>{{ inv.tienda }}</td>
-                        <td>{{ inv.autor }}</td>
+                        <td>{{ h.id }}</td>
+                        <td>{{ h.autor }}</td>
+                        <td>{{ h.tienda }}</td>
+                        <td>{{ h.fecha }}</td>
                         <td>
-                            <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#productos_{{inv.id}}" aria-expanded="false">
-                                Ver productos ({{inv.productos|length}})
+                            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="collapse" data-bs-target="#productos_{{ h.id }}">
+                                Ver productos ({{ h.productos|length }})
                             </button>
-                            <div class="collapse mt-2" id="productos_{{inv.id}}">
+                            <div class="collapse mt-2" id="productos_{{ h.id }}">
                                 <ul class="list-group">
-                                    {% for p in inv.productos %}
+                                    {% for p in h.productos %}
                                     <li class="list-group-item">
-                                        <b>{{p.codigo}}</b> — {{p.descripcion}} <br>
-                                        <small>Cód. Barras: {{p.cod_barras}}</small> <br>
-                                        <span class="badge bg-success">Cantidad: {{p.cantidad}}</span>
+                                        <strong>{{ p.codigo }}</strong> | {{ p.descripcion }} | <span class="text-muted">{{ p.cod_barras }}</span> | Cantidad: <strong>{{ p.cantidad }}</strong>
                                     </li>
                                     {% endfor %}
                                 </ul>
                             </div>
                         </td>
                     </tr>
-                    {% else %}
+                {% else %}
                     <tr>
-                        <td colspan="4" class="text-center">No hay históricos guardados aún.</td>
+                        <td colspan="5" class="text-center text-muted">No hay históricos de inventario.</td>
                     </tr>
-                    {% endfor %}
+                {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 <style>
-@media (max-width: 600px) {
-    .row .col-lg-10 {
-        padding-left: 5px;
-        padding-right: 5px;
+    .glass-card {
+        background: rgba(255,255,255,0.92);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px 0 rgba(31,38,135,0.14);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
     }
-    h2.mb-4 {
-        font-size: 1.18rem;
+    .fade-in {
+        opacity: 0;
+        animation: fadeIn 0.7s forwards;
     }
-    .btn, .form-control, .form-select {
-        font-size: 0.96rem !important;
+    @keyframes fadeIn {
+        to { opacity: 1; }
     }
-    .table-responsive {
-        font-size: 0.94rem;
-    }
-    .list-group-item {
-        font-size: 0.94rem;
-    }
-}
 </style>
 {% endblock %}

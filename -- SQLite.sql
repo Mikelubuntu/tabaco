@@ -34,4 +34,29 @@ CREATE TABLE inventario_historico (
     productos_json TEXT NOT NULL
 );
 
-DELETE FROM inventario_historico WHERE tienda = 'Mesa y Lopez';
+ALTER TABLE conteos_fisicos ADD COLUMN autor TEXT;
+def get_productos_de_tienda_y_fecha(tienda, fecha):
+    if fecha:
+        cursor.execute("SELECT * FROM inventario WHERE tienda=%s AND fecha=%s", (tienda, fecha))
+    else:
+        cursor.execute("SELECT * FROM inventario WHERE tienda=%s", (tienda,))
+    return cursor.fetchall()
+ALTER TABLE productos RENAME TO productos_old;
+
+CREATE TABLE productos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codigo TEXT NOT NULL,
+    descripcion TEXT NOT NULL,
+    cod_barras TEXT NOT NULL
+    -- NO añadas tienda aquí
+);
+
+INSERT INTO productos (id, codigo, descripcion, cod_barras)
+SELECT id, codigo, descripcion, cod_barras FROM productos_old;
+
+DROP TABLE productos_old;
+
+DELETE FROM conteos_fisicos;
+DELETE FROM inventario_historico WHERE tienda = 'Las Canteras';
+
+

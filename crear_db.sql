@@ -1,24 +1,12 @@
-import sqlite3
-
-conn = sqlite3.connect('database.db')
-cursor = conn.cursor()
-
-# Elimina tablas si existen
-cursor.execute("DROP TABLE IF EXISTS productos")
-cursor.execute("DROP TABLE IF EXISTS conteos_fisicos")
-cursor.execute("DROP TABLE IF EXISTS inventario_historico")
-
-# Crea las tablas nuevas
-cursor.execute("""
+-- Tabla de productos (sin tienda)
 CREATE TABLE productos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     codigo TEXT NOT NULL,
     descripcion TEXT NOT NULL,
     cod_barras TEXT NOT NULL
-)
-""")
+);
 
-cursor.execute("""
+-- Tabla de conteos físicos (CON tienda, para diferenciar los conteos por tienda y fecha)
 CREATE TABLE conteos_fisicos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tienda TEXT NOT NULL,
@@ -28,19 +16,13 @@ CREATE TABLE conteos_fisicos (
     stock_fisico INTEGER,
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
     autor TEXT
-)
-""")
+);
 
-cursor.execute("""
+-- Tabla de históricos de inventario físico
 CREATE TABLE inventario_historico (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     autor TEXT NOT NULL,
     tienda TEXT NOT NULL,
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
     productos_json TEXT NOT NULL
-)
-""")
-
-conn.commit()
-conn.close()
-print("¡Base de datos creada correctamente!")
+);

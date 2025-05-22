@@ -1,45 +1,51 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4 text-center text-md-start">Editar Conteo Físico</h2>
-    <form action="{{ url_for('editar_conteo', id=conteo['id']) }}" method="post" class="card p-4 shadow-sm mx-auto" style="max-width:500px;">
-        <div class="mb-3">
-            <label class="form-label">Tienda:</label>
-            <input type="text" class="form-control" value="{{ conteo['tienda'] }}" readonly>
+<div class="container fade-in">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card p-4 glass-card shadow-sm">
+                <h3 class="mb-3 text-center"><i class="bi bi-pencil-square"></i> Editar Conteo</h3>
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Tienda</label>
+                        <input type="text" class="form-control" value="{{ conteo.tienda }}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Código</label>
+                        <input type="text" class="form-control" value="{{ conteo.codigo }}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <input type="text" class="form-control" value="{{ conteo.descripcion }}" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cantidad Física</label>
+                        <input type="number" class="form-control" name="stock_fisico" value="{{ conteo.stock_fisico }}" required min="0">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Guardar Cambios</button>
+                        <a href="{{ url_for('conteos_fisicos') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Cancelar</a>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Código artículo:</label>
-            <input type="text" class="form-control" value="{{ conteo['codigo'] }}" readonly>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Descripción:</label>
-            <input type="text" class="form-control" value="{{ conteo['descripcion'] }}" readonly>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Código de barras:</label>
-            <input type="text" class="form-control" value="{{ conteo['cod_barras'] }}" readonly>
-        </div>
-        <div class="mb-3">
-            <label for="stock_fisico" class="form-label"><strong>Cantidad física</strong>:</label>
-            <input type="number" name="stock_fisico" id="stock_fisico" class="form-control" value="{{ conteo['stock_fisico'] }}" min="0" required autofocus>
-        </div>
-        <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
-            <button type="submit" class="btn btn-primary w-100 w-md-auto">Guardar cambios</button>
-            <a href="{{ url_for('conteos_fisicos') }}" class="btn btn-secondary w-100 w-md-auto">Cancelar</a>
-        </div>
-    </form>
+    </div>
 </div>
 <style>
-@media (max-width: 600px) {
-    .card.p-4 {
-        padding: 1rem !important;
+    .glass-card {
+        background: rgba(255,255,255,0.89);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px 0 rgba(31,38,135,0.14);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
     }
-    h2.mb-4 {
-        font-size: 1.2rem;
+    .fade-in {
+        opacity: 0;
+        animation: fadeIn 0.7s forwards;
     }
-    .btn, .form-control {
-        font-size: 0.96rem !important;
+    @keyframes fadeIn {
+        to { opacity: 1; }
     }
-}
 </style>
 {% endblock %}

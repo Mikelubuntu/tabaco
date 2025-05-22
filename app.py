@@ -24,6 +24,8 @@ def login_requerido(f):
 def index():
     return render_template('base.html')
 
+import secrets
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = ''
@@ -31,6 +33,8 @@ def login():
         password = request.form['password']
         if password == '0022':
             session['logueado'] = True
+            # Aquí creas el token aleatorio
+            session['token'] = secrets.token_hex(32)
             return redirect(url_for('index'))
         else:
             error = 'Contraseña incorrecta'
@@ -43,416 +47,1486 @@ def logout():
 
 # ------------ Lista de productos (aquí pon todos los productos a mostrar chaval NO TOCAR!) ------------
 productos = [
-
-    {"codigo": "20101000001", "descripcion": "3-M INTERNATIONAL IBERICA ***", "cod_barras": "8410016804075"},
-    {"codigo": "20101000002", "descripcion": "CAMEL FILTERS CARTON 10x20 Ud.", "cod_barras": "8410016804556"},
-    {"codigo": "20101000003", "descripcion": "CAMEL BLUE CARTON 10x20 Ud.", "cod_barras": "8410016804549"},
-    {"codigo": "20101000004", "descripcion": "CAMEL FILTERS SOFT 10x20 Ud.", "cod_barras": "8410016804532"},
-    {"codigo": "20101000005", "descripcion": "CAMEL ACTIVA DOUBLE 20x10 Udes.", "cod_barras": "8410016810526"},
-    {"codigo": "20101000006", "descripcion": "CAMEL ACTIVA YELLOW 20x10 Ud.", "cod_barras": "8410016810595"},
-    {"codigo": "20101000007", "descripcion": "CAMEL ACTIVA PLAYER. DPS 20X10", "cod_barras": "8410016810571"},
-    {"codigo": "20101000008", "descripcion": "CAMEL YELLOW 20x23 Ud. Udes.", "cod_barras": "8410016810588"},
-    {"codigo": "20101000009", "descripcion": "WINSTON RED 10x20 Ud.", "cod_barras": "8410044501867"},
-    {"codigo": "20101000010", "descripcion": "WINSTON GOLD BOX 10x20 Ud.", "cod_barras": "8410044501898"},
-    {"codigo": "20101000011", "descripcion": "WINSTON BLUE BOX 10x20 Ud.", "cod_barras": "8410044501904"},
-    {"codigo": "20101000012", "descripcion": "WINSTON SILVER BOX 10x20 Ud.", "cod_barras": "8410044501928"},
-    {"codigo": "20101000013", "descripcion": "WINSTON XSTYLE BLUE 10x20 Ud.", "cod_barras": "8410044502192"},
-    {"codigo": "20101000014", "descripcion": "WINSTON XSTYLE RED 10x20 Ud.", "cod_barras": "8410044502185"},
-    {"codigo": "20101000015", "descripcion": "LUCKY STRIKE RED 10x20 Ud.", "cod_barras": "8410044502543"},
-    {"codigo": "20101000016", "descripcion": "LUCKY STRIKE BLUE 10x20 Ud.", "cod_barras": "8410044502550"},
-    {"codigo": "20101000017", "descripcion": "LUCKY STRIKE CLICK & ROLL 10x20", "cod_barras": "8410044502581"},
-    {"codigo": "20101000018", "descripcion": "LUCKY STRIKE SILVER 10x20 Ud.", "cod_barras": "8410044502574"},
-    {"codigo": "20101000019", "descripcion": "CHESTERFIELD RED 10x20 Ud.", "cod_barras": "8410016900082"},
-    {"codigo": "20101000020", "descripcion": "CHESTERFIELD BLUE 10x20 Ud.", "cod_barras": "8410016900099"},
-    {"codigo": "20101000021", "descripcion": "CHESTERFIELD ORIGINAL 10x20 Ud.", "cod_barras": "8410016900112"},
-    {"codigo": "20101000022", "descripcion": "CHESTERFIELD MENTHOL 10x20 Ud.", "cod_barras": "8410016900129"},
-    {"codigo": "20101000023", "descripcion": "FORTUNA 10x20 Ud.", "cod_barras": "8410016000858"},
-    {"codigo": "20101000024", "descripcion": "NOBEL 10x20 Ud.", "cod_barras": "8410016400718"},
-    {"codigo": "20101000025", "descripcion": "DUCATI RED 10x20 Ud.", "cod_barras": "8410016200905"},
-    {"codigo": "20101000026", "descripcion": "DUCATI BLUE 10x20 Ud.", "cod_barras": "8410016200912"},
-    {"codigo": "20101000027", "descripcion": "DUCATI SILVER 10x20 Ud.", "cod_barras": "8410016200929"},
-    {"codigo": "20101000028", "descripcion": "WEST RED 10x20 Ud.", "cod_barras": "4001090000681"},
-    {"codigo": "20101000029", "descripcion": "WEST BLUE 10x20 Ud.", "cod_barras": "4001090000698"},
-    {"codigo": "20101000030", "descripcion": "WEST ICE 10x20 Ud.", "cod_barras": "4001090000704"},
-    {"codigo": "20101000031", "descripcion": "MARLBORO RED 10x20 Ud.", "cod_barras": "7622100711334"},
-    {"codigo": "20101000032", "descripcion": "MARLBORO GOLD 10x20 Ud.", "cod_barras": "7622100711341"},
-    {"codigo": "20101000033", "descripcion": "MARLBORO FUSION 10x20 Ud.", "cod_barras": "7622100711365"},
-    {"codigo": "20101000034", "descripcion": "MARLBORO TOUCH 10x20 Ud.", "cod_barras": "7622100711372"},
-    {"codigo": "20101000035", "descripcion": "MARLBORO SILVER 10x20 Ud.", "cod_barras": "7622100711358"},
-    {"codigo": "20101000036", "descripcion": "PHILIP MORRIS RED 10x20 Ud.", "cod_barras": "7622100711679"},
-    {"codigo": "20101000037", "descripcion": "PHILIP MORRIS BLUE 10x20 Ud.", "cod_barras": "7622100711686"},
-    {"codigo": "20101000038", "descripcion": "PHILIP MORRIS SILVER 10x20 Ud.", "cod_barras": "7622100711693"},
-    {"codigo": "20101000039", "descripcion": "L&M RED LABEL 10x20 Ud.", "cod_barras": "7622100711716"},
-    {"codigo": "20101000040", "descripcion": "L&M BLUE LABEL 10x20 Ud.", "cod_barras": "7622100711723"},
-    {"codigo": "20101000041", "descripcion": "L&M SILVER LABEL 10x20 Ud.", "cod_barras": "7622100711730"},
-    {"codigo": "20101000042", "descripcion": "L&M BLUE LABEL 10x20 Ud.", "cod_barras": "7622100711747"},
-    {"codigo": "20101000043", "descripcion": "L&M L8 10x20 Ud.", "cod_barras": "7622100711754"},
-    {"codigo": "20101000044", "descripcion": "L&M MOTION 10x20 Ud.", "cod_barras": "7622100711761"},
-    {"codigo": "20101000045", "descripcion": "ELIXYR RED 10x20 Ud.", "cod_barras": "5410133800018"},
-    {"codigo": "20101000046", "descripcion": "ELIXYR BLUE 10x20 Ud.", "cod_barras": "5410133800025"},
-    {"codigo": "20101000047", "descripcion": "ELIXYR SILVER 10x20 Ud.", "cod_barras": "5410133800032"},
-    {"codigo": "20101000048", "descripcion": "ELIXYR MENTHOL 10x20 Ud.", "cod_barras": "5410133800049"},
-    {"codigo": "20101000049", "descripcion": "PALL MALL RED 10x20 Ud.", "cod_barras": "4082300325655"},
-    {"codigo": "20101000050", "descripcion": "PALL MALL BLUE 10x20 Ud.", "cod_barras": "4082300325662"},
-    {"codigo": "20101000051", "descripcion": "PALL MALL SILVER 10x20 Ud.", "cod_barras": "4082300325679"},
-    {"codigo": "20101000052", "descripcion": "PALL MALL ORANGE 10x20 Ud.", "cod_barras": "4082300325686"},
-    {"codigo": "20101000053", "descripcion": "PALL MALL MENTHOL 10x20 Ud.", "cod_barras": "4082300325693"},
-    {"codigo": "20101000054", "descripcion": "DUNHILL INTERNATIONAL 10x20 Ud.", "cod_barras": "5000267013871"},
-    {"codigo": "20101000055", "descripcion": "DUNHILL FINE CUT WHITE 10x20 Ud.", "cod_barras": "5000267013888"},
-    {"codigo": "20101000056", "descripcion": "DUNHILL SWITCH 10x20 Ud.", "cod_barras": "5000267013895"},
-    {"codigo": "20101000057", "descripcion": "GOLOISE BLONDE 10x20 Ud.", "cod_barras": "3086126006901"},
-    {"codigo": "20101000058", "descripcion": "GOLOISE BLEUE 10x20 Ud.", "cod_barras": "3086126006918"},
-    {"codigo": "20101000059", "descripcion": "GOLOISE BRUNE 10x20 Ud.", "cod_barras": "3086126006925"},
-    {"codigo": "20101000060", "descripcion": "LUCKY STRIKE SUNSET 10x20 Ud.", "cod_barras": "8410044502567"},
-    {"codigo": "20101000061", "descripcion": "LUCKY STRIKE NIGHT 10x20 Ud.", "cod_barras": "8410044502598"},
-    {"codigo": "20101000062", "descripcion": "LUCKY STRIKE ICE 10x20 Ud.", "cod_barras": "8410044502604"},
-    {"codigo": "20101000063", "descripcion": "MARLBORO ICE BLAST 10x20 Ud.", "cod_barras": "7622100711389"},
-    {"codigo": "20101000064", "descripcion": "MARLBORO CRUSHBALL 10x20 Ud.", "cod_barras": "7622100711396"},
-    {"codigo": "20101000065", "descripcion": "MARLBORO DOUBLE MIX 10x20 Ud.", "cod_barras": "7622100711402"},
-    {"codigo": "20101000066", "descripcion": "CHESTERFIELD MINT 10x20 Ud.", "cod_barras": "8410016900136"},
-    {"codigo": "20101000067", "descripcion": "CHESTERFIELD CHERRY 10x20 Ud.", "cod_barras": "8410016900143"},
-    {"codigo": "20101000068", "descripcion": "WEST CHERRY 10x20 Ud.", "cod_barras": "4001090000711"},
-    {"codigo": "20101000069", "descripcion": "WEST MENTHOL 10x20 Ud.", "cod_barras": "4001090000728"},
-    {"codigo": "20101000070", "descripcion": "WEST ICE BLAST 10x20 Ud.", "cod_barras": "4001090000735"},
-    {"codigo": "20101000071", "descripcion": "DUCATI MENTHOL 10x20 Ud.", "cod_barras": "8410016200936"},
-    {"codigo": "20101000072", "descripcion": "NOBEL MENTHOL 10x20 Ud.", "cod_barras": "8410016400725"},
-    {"codigo": "20101000073", "descripcion": "FORTUNA MENTHOL 10x20 Ud.", "cod_barras": "8410016000865"},
-    {"codigo": "20101000074", "descripcion": "CAMEL MENTHOL 10x20 Ud.", "cod_barras": "8410016810601"},
-    {"codigo": "20101000075", "descripcion": "CAMEL ICE BLAST 10x20 Ud.", "cod_barras": "8410016810618"},
-    {"codigo": "20101000076", "descripcion": "PALL MALL ICE 10x20 Ud.", "cod_barras": "4082300325709"},
-    {"codigo": "20101000077", "descripcion": "PALL MALL SUNSET 10x20 Ud.", "cod_barras": "4082300325716"},
-    {"codigo": "20101000078", "descripcion": "GOLOISE ICE 10x20 Ud.", "cod_barras": "3086126006932"},
-    {"codigo": "20101000079", "descripcion": "L&M ICE 10x20 Ud.", "cod_barras": "7622100711778"},
-    {"codigo": "20101000080", "descripcion": "ELIXYR ICE 10x20 Ud.", "cod_barras": "5410133800056"},
-    {"codigo": "20101000081", "descripcion": "WINSTON ICE 10x20 Ud.", "cod_barras": "8410044501935"},
-    {"codigo": "20101000082", "descripcion": "LUCKY STRIKE CHERRY 10x20 Ud.", "cod_barras": "8410044502611"},
-    {"codigo": "20101000083", "descripcion": "LUCKY STRIKE MENTHOL 10x20 Ud.", "cod_barras": "8410044502628"},
-    {"codigo": "20101000084", "descripcion": "MARLBORO CHERRY 10x20 Ud.", "cod_barras": "7622100711419"},
-    {"codigo": "20101000085", "descripcion": "PHILIP MORRIS CHERRY 10x20 Ud.", "cod_barras": "7622100711709"},
-    {"codigo": "20101000086", "descripcion": "CHESTERFIELD ICE 10x20 Ud.", "cod_barras": "8410016900150"},
-    {"codigo": "20101000087", "descripcion": "DUCATI ICE 10x20 Ud.", "cod_barras": "8410016200943"},
-    {"codigo": "20101000088", "descripcion": "NOBEL ICE 10x20 Ud.", "cod_barras": "8410016400732"},
-    {"codigo": "20101000089", "descripcion": "FORTUNA ICE 10x20 Ud.", "cod_barras": "8410016000872"},
-    {"codigo": "20101000090", "descripcion": "CAMEL CHERRY 10x20 Ud.", "cod_barras": "8410016810625"},
-    {"codigo": "20101000091", "descripcion": "CAMEL MINT 10x20 Ud.", "cod_barras": "8410016810632"},
-    {"codigo": "20101000092", "descripcion": "WEST ICE MINT 10x20 Ud.", "cod_barras": "4001090000742"},
-    {"codigo": "20101000093", "descripcion": "WEST DOUBLE ICE 10x20 Ud.", "cod_barras": "4001090000759"},
-    {"codigo": "20101000094", "descripcion": "DUCATI CHERRY 10x20 Ud.", "cod_barras": "8410016200950"},
-    {"codigo": "20101000095", "descripcion": "NOBEL CHERRY 10x20 Ud.", "cod_barras": "8410016400749"},
-    {"codigo": "20101000096", "descripcion": "FORTUNA CHERRY 10x20 Ud.", "cod_barras": "8410016000889"},
-    {"codigo": "20101000097", "descripcion": "GOLOISE MINT 10x20 Ud.", "cod_barras": "3086126006949"},
-    {"codigo": "20101000098", "descripcion": "L&M MINT 10x20 Ud.", "cod_barras": "7622100711785"},
-    {"codigo": "20101000099", "descripcion": "ELIXYR CHERRY 10x20 Ud.", "cod_barras": "5410133800063"},
-    {"codigo": "20101000100", "descripcion": "WINSTON MINT 10x20 Ud.", "cod_barras": "8410044501942"},
-    {"codigo": "20101000101", "descripcion": "LUCKY STRIKE ICE MINT 10x20 Ud.", "cod_barras": "8410044502635"},
-    {"codigo": "20101000102", "descripcion": "MARLBORO ICE MINT 10x20 Ud.", "cod_barras": "7622100711426"},
-    {"codigo": "20101000103", "descripcion": "PHILIP MORRIS ICE MINT 10x20 Ud.", "cod_barras": "7622100711716"},
-    {"codigo": "20101000104", "descripcion": "CHESTERFIELD ICE MINT 10x20 Ud.", "cod_barras": "8410016900167"},
-    {"codigo": "20101000105", "descripcion": "DUCATI ICE MINT 10x20 Ud.", "cod_barras": "8410016200967"},
-    {"codigo": "20101000106", "descripcion": "NOBEL ICE MINT 10x20 Ud.", "cod_barras": "8410016400756"},
-    {"codigo": "20101000107", "descripcion": "FORTUNA ICE MINT 10x20 Ud.", "cod_barras": "8410016000896"},
-    {"codigo": "20101000108", "descripcion": "CAMEL ICE MINT 10x20 Ud.", "cod_barras": "8410016810649"},
-    {"codigo": "20101000109", "descripcion": "GOLOISE ICE MINT 10x20 Ud.", "cod_barras": "3086126006956"},
-    {"codigo": "20101000110", "descripcion": "L&M ICE MINT 10x20 Ud.", "cod_barras": "7622100711792"},
-    {"codigo": "20101000111", "descripcion": "ELIXYR ICE MINT 10x20 Ud.", "cod_barras": "5410133800070"},
-    {"codigo": "20101000112", "descripcion": "WINSTON ICE MINT 10x20 Ud.", "cod_barras": "8410044501959"},
-    {"codigo": "20101000113", "descripcion": "LUCKY STRIKE DOUBLE ICE 10x20 Ud.", "cod_barras": "8410044502642"},
-    {"codigo": "20101000114", "descripcion": "MARLBORO DOUBLE ICE 10x20 Ud.", "cod_barras": "7622100711433"},
-    {"codigo": "20101000115", "descripcion": "PHILIP MORRIS DOUBLE ICE 10x20 Ud.", "cod_barras": "7622100711723"},
-    {"codigo": "20101000116", "descripcion": "CHESTERFIELD DOUBLE ICE 10x20 Ud.", "cod_barras": "8410016900174"},
-    {"codigo": "20101000117", "descripcion": "DUCATI DOUBLE ICE 10x20 Ud.", "cod_barras": "8410016200974"},
-    {"codigo": "20101000118", "descripcion": "NOBEL DOUBLE ICE 10x20 Ud.", "cod_barras": "8410016400763"},
-    {"codigo": "20101000119", "descripcion": "FORTUNA DOUBLE ICE 10x20 Ud.", "cod_barras": "8410016000902"},
-    {"codigo": "20101000120", "descripcion": "CAMEL DOUBLE ICE 10x20 Ud.", "cod_barras": "8410016810656"},
-    {"codigo": "20101000121", "descripcion": "GOLOISE DOUBLE ICE 10x20 Ud.", "cod_barras": "3086126006963"},
-    {"codigo": "20101000122", "descripcion": "L&M DOUBLE ICE 10x20 Ud.", "cod_barras": "7622100711808"},
-    {"codigo": "20101000123", "descripcion": "ELIXYR DOUBLE ICE 10x20 Ud.", "cod_barras": "5410133800087"},
-    {"codigo": "20101000124", "descripcion": "WINSTON DOUBLE ICE 10x20 Ud.", "cod_barras": "8410044501966"},
-    {"codigo": "20101000125", "descripcion": "MARLBORO DOUBLE CHERRY 10x20 Ud.", "cod_barras": "7622100711440"},
-    {"codigo": "20101000126", "descripcion": "LUCKY STRIKE DOUBLE CHERRY 10x20 Ud.", "cod_barras": "8410044502659"},
-    {"codigo": "20101000127", "descripcion": "CHESTERFIELD DOUBLE CHERRY 10x20 Ud.", "cod_barras": "8410016900181"},
-    {"codigo": "20101000128", "descripcion": "CAMEL DOUBLE CHERRY 10x20 Ud.", "cod_barras": "8410016810663"},
-    {"codigo": "20101000129", "descripcion": "DUCATI DOUBLE CHERRY 10x20 Ud.", "cod_barras": "8410016200981"},
-    {"codigo": "20101000130", "descripcion": "NOBEL DOUBLE CHERRY 10x20 Ud.", "cod_barras": "8410016400770"},
-    {"codigo": "20101000131", "descripcion": "FORTUNA DOUBLE CHERRY 10x20 Ud.", "cod_barras": "8410016000919"},
-    {"codigo": "20101000132", "descripcion": "GOLOISE DOUBLE CHERRY 10x20 Ud.", "cod_barras": "3086126006970"},
-    {"codigo": "20101000133", "descripcion": "L&M DOUBLE CHERRY 10x20 Ud.", "cod_barras": "7622100711815"},
-    {"codigo": "20101000134", "descripcion": "ELIXYR DOUBLE CHERRY 10x20 Ud.", "cod_barras": "5410133800094"},
-    {"codigo": "20101000135", "descripcion": "WINSTON DOUBLE CHERRY 10x20 Ud.", "cod_barras": "8410044501973"},
-    {"codigo": "20101000136", "descripcion": "MARLBORO DOUBLE MINT 10x20 Ud.", "cod_barras": "7622100711457"},
-    {"codigo": "20101000137", "descripcion": "LUCKY STRIKE DOUBLE MINT 10x20 Ud.", "cod_barras": "8410044502666"},
-    {"codigo": "20101000138", "descripcion": "CHESTERFIELD DOUBLE MINT 10x20 Ud.", "cod_barras": "8410016900198"},
-    {"codigo": "20101000139", "descripcion": "CAMEL DOUBLE MINT 10x20 Ud.", "cod_barras": "8410016810670"},
-    {"codigo": "20101000140", "descripcion": "DUCATI DOUBLE MINT 10x20 Ud.", "cod_barras": "8410016200998"},
-    {"codigo": "20101000141", "descripcion": "NOBEL DOUBLE MINT 10x20 Ud.", "cod_barras": "8410016400787"},
-    {"codigo": "20101000142", "descripcion": "FORTUNA DOUBLE MINT 10x20 Ud.", "cod_barras": "8410016000926"},
-    {"codigo": "20101000143", "descripcion": "GOLOISE DOUBLE MINT 10x20 Ud.", "cod_barras": "3086126006987"},
-    {"codigo": "20101000144", "descripcion": "L&M DOUBLE MINT 10x20 Ud.", "cod_barras": "7622100711822"},
-    {"codigo": "20101000145", "descripcion": "ELIXYR DOUBLE MINT 10x20 Ud.", "cod_barras": "5410133800100"},
-    {"codigo": "20101000146", "descripcion": "WINSTON DOUBLE MINT 10x20 Ud.", "cod_barras": "8410044501980"},
-    {"codigo": "20101000147", "descripcion": "MARLBORO SUNSET 10x20 Ud.", "cod_barras": "7622100711464"},
-    {"codigo": "20101000148", "descripcion": "LUCKY STRIKE SUNSET 10x20 Ud.", "cod_barras": "8410044502673"},
-    {"codigo": "20101000149", "descripcion": "CHESTERFIELD SUNSET 10x20 Ud.", "cod_barras": "8410016900204"},
-    {"codigo": "20101000150", "descripcion": "CAMEL SUNSET 10x20 Ud.", "cod_barras": "8410016810687"},
-    {"codigo": "20101000151", "descripcion": "DUCATI SUNSET 10x20 Ud.", "cod_barras": "8410016201001"},
-    {"codigo": "20101000152", "descripcion": "NOBEL SUNSET 10x20 Ud.", "cod_barras": "8410016400794"},
-    {"codigo": "20101000153", "descripcion": "FORTUNA SUNSET 10x20 Ud.", "cod_barras": "8410016000933"},
-    {"codigo": "20101000154", "descripcion": "GOLOISE SUNSET 10x20 Ud.", "cod_barras": "3086126006994"},
-    {"codigo": "20101000155", "descripcion": "L&M SUNSET 10x20 Ud.", "cod_barras": "7622100711839"},
-    {"codigo": "20101000156", "descripcion": "ELIXYR SUNSET 10x20 Ud.", "cod_barras": "5410133800117"},
-    {"codigo": "20101000157", "descripcion": "WINSTON SUNSET 10x20 Ud.", "cod_barras": "8410044501997"},
-    {"codigo": "20101000158", "descripcion": "MARLBORO NIGHT 10x20 Ud.", "cod_barras": "7622100711471"},
-    {"codigo": "20101000159", "descripcion": "LUCKY STRIKE NIGHT 10x20 Ud.", "cod_barras": "8410044502680"},
-    {"codigo": "20101000160", "descripcion": "CHESTERFIELD NIGHT 10x20 Ud.", "cod_barras": "8410016900211"},
-    {"codigo": "20101000161", "descripcion": "CAMEL NIGHT 10x20 Ud.", "cod_barras": "8410016810694"},
-    {"codigo": "20101000162", "descripcion": "DUCATI NIGHT 10x20 Ud.", "cod_barras": "8410016201018"},
-    {"codigo": "20101000163", "descripcion": "NOBEL NIGHT 10x20 Ud.", "cod_barras": "8410016400800"},
-    {"codigo": "20101000164", "descripcion": "FORTUNA NIGHT 10x20 Ud.", "cod_barras": "8410016000940"},
-    {"codigo": "20101000165", "descripcion": "GOLOISE NIGHT 10x20 Ud.", "cod_barras": "3086126007007"},
-    {"codigo": "20101000166", "descripcion": "L&M NIGHT 10x20 Ud.", "cod_barras": "7622100711846"},
-    {"codigo": "20101000167", "descripcion": "ELIXYR NIGHT 10x20 Ud.", "cod_barras": "5410133800124"},
-    {"codigo": "20101000168", "descripcion": "WINSTON NIGHT 10x20 Ud.", "cod_barras": "8410044502000"},
-    {"codigo": "60101000001", "descripcion": "HEETS AMBER 20 UDS", "cod_barras": "7630048301417"},
-    {"codigo": "60101000002", "descripcion": "HEETS YELLOW 20 UDS", "cod_barras": "7630048301424"},
-    {"codigo": "60101000003", "descripcion": "HEETS TURQUOISE 20 UDS", "cod_barras": "7630048301431"},
-    {"codigo": "60101000004", "descripcion": "HEETS SIENNA 20 UDS", "cod_barras": "7630048301448"},
-    {"codigo": "60101000005", "descripcion": "HEETS GREEN ZING 20 UDS", "cod_barras": "7630048301455"},
-    {"codigo": "60101000006", "descripcion": "HEETS BRONZE 20 UDS", "cod_barras": "7630048301462"},
-    {"codigo": "60101000007", "descripcion": "HEETS SILVER 20 UDS", "cod_barras": "7630048301479"},
-    {"codigo": "60101000008", "descripcion": "TEREA AMBER 20 UDS", "cod_barras": "7630048302049"},
-    {"codigo": "60101000009", "descripcion": "TEREA YELLOW 20 UDS", "cod_barras": "7630048302056"},
-    {"codigo": "60101000010", "descripcion": "TEREA BLUE 20 UDS", "cod_barras": "7630048302063"},
-    {"codigo": "60101000011", "descripcion": "TEREA BRONZE 20 UDS", "cod_barras": "7630048302070"},
-    {"codigo": "60101000012", "descripcion": "TEREA GREEN 20 UDS", "cod_barras": "7630048302087"},
-    {"codigo": "60102000001", "descripcion": "IQOS ILUMA ONE", "cod_barras": "7630048303091"},
-    {"codigo": "60102000002", "descripcion": "IQOS ILUMA PRIME", "cod_barras": "7630048303107"},
-    {"codigo": "60102000003", "descripcion": "IQOS 3 DUO", "cod_barras": "7630048303084"},
-    {"codigo": "60103000001", "descripcion": "IQOS CLEANING STICKS 30U", "cod_barras": "7630048302506"},
-    {"codigo": "60103000002", "descripcion": "IQOS ILUMA CAP", "cod_barras": "7630048302704"},
-    {"codigo": "60103000003", "descripcion": "IQOS CARGADOR USB", "cod_barras": "7630048302681"},
-    {"codigo": "60103000004", "descripcion": "IQOS HOLDER", "cod_barras": "7630048302674"},
-
-    {"codigo": "70101000001", "descripcion": "VELO POLAR MINT", "cod_barras": "5704841053914"},
-    {"codigo": "70101000002", "descripcion": "VELO BERRY FROST", "cod_barras": "5704841053907"},
-    {"codigo": "70101000003", "descripcion": "VELO ICE COOL", "cod_barras": "5704841053921"},
-    {"codigo": "70101000004", "descripcion": "VELO TROPICAL", "cod_barras": "5704841053938"},
-
-    {"codigo": "70201000001", "descripcion": "VUSE POD MANGO ICE", "cod_barras": "4031300168585"},
-    {"codigo": "70201000002", "descripcion": "VUSE POD CLASSIC TOBACCO", "cod_barras": "4031300168592"},
-    {"codigo": "70201000003", "descripcion": "VUSE POD WILD BERRIES", "cod_barras": "4031300168608"},
-    {"codigo": "70201000004", "descripcion": "VUSE ePOD 2 KIT", "cod_barras": "4031300168714"},
-
-    {"codigo": "70301000001", "descripcion": "BLU PRO KIT", "cod_barras": "4031300256985"},
-    {"codigo": "70301000002", "descripcion": "BLU LIQUID CHERRY CRUSH", "cod_barras": "4031300256992"},
-    {"codigo": "70301000003", "descripcion": "BLU INTENSE POD BLUEBERRY", "cod_barras": ""},
-
-    {"codigo": "80101000001", "descripcion": "PUEBLO NATURAL 30g", "cod_barras": "4030400069726"},
-    {"codigo": "80101000002", "descripcion": "PUEBLO BLUE 30g", "cod_barras": "4030400069740"},
-    {"codigo": "80101000003", "descripcion": "CHESTERFIELD ORIGINAL 30g", "cod_barras": "7622100340597"},
-    {"codigo": "80101000004", "descripcion": "CHESTERFIELD BLUE 30g", "cod_barras": "7622100340603"},
-    {"codigo": "80101000005", "descripcion": "AMERICAN SPIRIT YELLOW 30g", "cod_barras": "4001012042915"},
-    {"codigo": "80101000006", "descripcion": "AMERICAN SPIRIT BLUE 30g", "cod_barras": "4001012042908"},
-    {"codigo": "80101000007", "descripcion": "GOLDEN VIRGINIA ORIGINAL 30g", "cod_barras": "5000157091326"},
-    {"codigo": "80101000008", "descripcion": "GOLDEN VIRGINIA RUBIO 30g", "cod_barras": "5000157118429"},
-    {"codigo": "80101000009", "descripcion": "NOBEL FINA SELECCION 30g", "cod_barras": "8410016400817"},
-    {"codigo": "80101000010", "descripcion": "NOBEL FINA SELECCION 45g", "cod_barras": "8410016400824"},
-    {"codigo": "80101000011", "descripcion": "CHESTERFIELD RYO 30g", "cod_barras": "7622100340610"},
-    {"codigo": "80101000012", "descripcion": "WEST RED 30g", "cod_barras": "4001090302852"},
-    {"codigo": "80101000013", "descripcion": "WEST BLUE 30g", "cod_barras": "4001090302869"},
-    {"codigo": "80101000014", "descripcion": "FINE CUT ORIGINAL 30g", "cod_barras": "5000157118412"},
-    {"codigo": "80101000015", "descripcion": "AMBASSADOR RUBIO 30g", "cod_barras": "8410016400855"},
-    {"codigo": "90101000001", "descripcion": "OCB SLIM PREMIUM 32 LIBRILLOS", "cod_barras": "3057067170146"},
-    {"codigo": "90101000002", "descripcion": "OCB XPERT SLIM 50 LIBRILLOS", "cod_barras": "3057067190199"},
-    {"codigo": "90101000003", "descripcion": "RIZLA BLUE 50 LIBRILLOS", "cod_barras": "5410113302147"},
-    {"codigo": "90101000004", "descripcion": "RIZLA SILVER 50 LIBRILLOS", "cod_barras": "5410113302154"},
-    {"codigo": "90101000005", "descripcion": "RAW CLASSIC 32 LIBRILLOS", "cod_barras": "716165174511"},
-    {"codigo": "90101000006", "descripcion": "RAW BLACK KING SIZE 32 LIBRILLOS", "cod_barras": "716165279568"},
-    {"codigo": "90101000007", "descripcion": "SMOKING BLUE 60 LIBRILLOS", "cod_barras": "8414775012166"},
-    {"codigo": "90101000008", "descripcion": "SMOKING GREEN 60 LIBRILLOS", "cod_barras": "8414775012180"},
-    {"codigo": "90101000009", "descripcion": "FILTROS OCB SLIM 150 UDS", "cod_barras": "3057067180732"},
-    {"codigo": "90101000010", "descripcion": "FILTROS RIZLA SLIM 120 UDS", "cod_barras": "5410113307012"},
-    {"codigo": "90101000011", "descripcion": "FILTROS SMOKING BROWN 120 UDS", "cod_barras": "8414775016232"},
-    {"codigo": "90101000012", "descripcion": "TUBOS RIZLA 100 UDS", "cod_barras": "5410113307012"},
-    {"codigo": "90101000013", "descripcion": "TUBOS SMOKING 200 UDS", "cod_barras": "8414775014993"},
-    {"codigo": "90101000014", "descripcion": "FILTROS CLIPPER REGULAR 100 UDS", "cod_barras": "8412765033800"},
-    {"codigo": "100101000001", "descripcion": "CLIPPER ENCENDEDOR METAL", "cod_barras": "8412765903264"},
-    {"codigo": "100101000002", "descripcion": "CLIPPER ENCENDEDOR CLASSIC", "cod_barras": "8412765903240"},
-    {"codigo": "100101000003", "descripcion": "BIC ENCENDEDOR MINI", "cod_barras": "3086126203218"},
-    {"codigo": "100101000004", "descripcion": "BIC ENCENDEDOR MAXI", "cod_barras": "3086126203126"},
-    {"codigo": "100101000005", "descripcion": "CLIPPER GAS 300ML", "cod_barras": "8412765901802"},
-    {"codigo": "100101000006", "descripcion": "CLIPPER PEDERNAL 9 UDS", "cod_barras": "8412765901758"},
-    {"codigo": "100101000007", "descripcion": "MAQUINA LIAR OCB PREMIUM", "cod_barras": "3057067170108"},
-    {"codigo": "100101000008", "descripcion": "MAQUINA TUBOS OCB", "cod_barras": "3057067272017"},
-    {"codigo": "100101000009", "descripcion": "GRINDER METAL 4 PARTES", "cod_barras": "8435047502083"},
-    {"codigo": "100101000010", "descripcion": "GRINDER PLASTICO", "cod_barras": "8435047502038"},
-    {"codigo": "100101000011", "descripcion": "BOLSAS ZIP 100 UDS", "cod_barras": "8424295101001"},
-    {"codigo": "100101000012", "descripcion": "MASCARILLA HIGIENICA PACK", "cod_barras": ""},
-    {"codigo": "100101000013", "descripcion": "PAPEL ROLLING KING SIZE", "cod_barras": "716165175525"},
-    {"codigo": "100101000014", "descripcion": "PIPA MADERA STANDARD", "cod_barras": ""},
-    {"codigo": "100101000015", "descripcion": "CACHIMBA MINI 1 UDS", "cod_barras": ""},
-    {"codigo": "60101000013", "descripcion": "TEREA MAUVE 20 UDS", "cod_barras": "7630048302094"},
-{"codigo": "60101000014", "descripcion": "TEREA SIENNA 20 UDS", "cod_barras": "7630048302100"},
-{"codigo": "60101000015", "descripcion": "TEREA TEAK 20 UDS", "cod_barras": "7630048302117"},
-{"codigo": "60101000016", "descripcion": "TEREA PURPLE 20 UDS", "cod_barras": "7630048302124"},
-{"codigo": "60101000017", "descripcion": "TEREA BRIGHT 20 UDS", "cod_barras": "7630048302131"},
-{"codigo": "60101000018", "descripcion": "TEREA INDIGO 20 UDS", "cod_barras": "7630048302148"},
-{"codigo": "60101000019", "descripcion": "TEREA TURQUOISE 20 UDS", "cod_barras": "7630048302155"},
-{"codigo": "60101000020", "descripcion": "TEREA MARINE 20 UDS", "cod_barras": "7630048302162"},
-{"codigo": "60101000021", "descripcion": "TEREA YELLOW SELECTION 20 UDS", "cod_barras": "7630048302179"},
-{"codigo": "60102000004", "descripcion": "IQOS LIL SOLID 2.0", "cod_barras": "8809686510801"},
-{"codigo": "60102000005", "descripcion": "IQOS ILUMA STANDARD", "cod_barras": "7630048303114"},
-{"codigo": "60102000006", "descripcion": "IQOS ILUMA KIT", "cod_barras": "7630048303121"},
-{"codigo": "60102000007", "descripcion": "IQOS 2.4 PLUS", "cod_barras": "7630048303077"},
-{"codigo": "60102000008", "descripcion": "IQOS ILUMA RING", "cod_barras": "7630048302711"},
-{"codigo": "60103000005", "descripcion": "IQOS HEATER CLEANER", "cod_barras": "7630048302728"},
-{"codigo": "60103000006", "descripcion": "IQOS TRAVEL CASE", "cod_barras": "7630048302735"},
-{"codigo": "70101000005", "descripcion": "VELO URBAN VIBE", "cod_barras": "5704841053945"},
-{"codigo": "70101000006", "descripcion": "VELO CITRUS", "cod_barras": "5704841053952"},
-{"codigo": "70101000007", "descripcion": "VELO FREEZE", "cod_barras": "5704841053969"},
-{"codigo": "70101000008", "descripcion": "VELO ROYAL PURPLE", "cod_barras": "5704841053976"},
-{"codigo": "70101000009", "descripcion": "VELO RUBY BERRY", "cod_barras": "5704841053983"},
-{"codigo": "70201000005", "descripcion": "VUSE POD POLAR MINT", "cod_barras": "4031300168615"},
-{"codigo": "70201000006", "descripcion": "VUSE POD STRAWBERRY", "cod_barras": "4031300168622"},
-{"codigo": "70201000007", "descripcion": "VUSE ePOD 2 MINI KIT", "cod_barras": "4031300168721"},
-{"codigo": "70201000008", "descripcion": "VUSE ePEN 3 KIT", "cod_barras": "4031300168738"},
-{"codigo": "70301000004", "descripcion": "BLU INTENSE POD MANGO APRICOT", "cod_barras": "4031300257005"},
-{"codigo": "70301000005", "descripcion": "BLU INTENSE POD TOBACCO", "cod_barras": "4031300257012"},
-{"codigo": "80101000016", "descripcion": "DRUM ORIGINAL 30g", "cod_barras": "8710908948766"},
-{"codigo": "80101000017", "descripcion": "DRUM BLUE 30g", "cod_barras": "8710908948773"},
-{"codigo": "80101000018", "descripcion": "DUCADO AZUL 30g", "cod_barras": "8410016400862"},
-{"codigo": "80101000019", "descripcion": "WEST ORIGINAL 30g", "cod_barras": "4001090302876"},
-{"codigo": "80101000020", "descripcion": "FORTUNA BLEND 30g", "cod_barras": "8410016001012"},
-{"codigo": "80101000021", "descripcion": "MAC BAREN AMSTERDAMER 30g", "cod_barras": "5707294249217"},
-{"codigo": "80101000022", "descripcion": "AMBASSADOR ORIGINAL 30g", "cod_barras": "8410016400879"},
-{"codigo": "90101000015", "descripcion": "OCB SLIM ULTIMATE 32 LIBRILLOS", "cod_barras": "3057067170153"},
-{"codigo": "90101000016", "descripcion": "RIZLA GREEN 50 LIBRILLOS", "cod_barras": "5410113302161"},
-{"codigo": "90101000017", "descripcion": "FILTROS RAW 120 UDS", "cod_barras": "716165178502"},
-{"codigo": "90101000018", "descripcion": "TUBOS OCB 200 UDS", "cod_barras": "3057067190212"},
-{"codigo": "100101000016", "descripcion": "GRINDER RAW 2 PARTES", "cod_barras": "716165178419"},
-{"codigo": "100101000017", "descripcion": "PIPA METALICA STANDARD", "cod_barras": "8435047502090"},
-{"codigo": "100101000018", "descripcion": "BOLSAS ZIP PEQUEÑAS 100 UDS", "cod_barras": "8424295101025"},
-{"codigo": "100101000019", "descripcion": "CLIPPER ENCENDEDOR MINI", "cod_barras": "8412765903271"},
-{"codigo": "60101000013", "descripcion": "TEREA MAUVE 20 UDS", "cod_barras": "7630048302094"},
-{"codigo": "60101000014", "descripcion": "TEREA SIENNA 20 UDS", "cod_barras": "7630048302100"},
-{"codigo": "60101000015", "descripcion": "TEREA TEAK 20 UDS", "cod_barras": "7630048302117"},
-{"codigo": "60101000016", "descripcion": "TEREA PURPLE 20 UDS", "cod_barras": "7630048302124"},
-{"codigo": "60101000017", "descripcion": "TEREA BRIGHT 20 UDS", "cod_barras": "7630048302131"},
-{"codigo": "60101000018", "descripcion": "TEREA INDIGO 20 UDS", "cod_barras": "7630048302148"},
-{"codigo": "60101000019", "descripcion": "TEREA TURQUOISE 20 UDS", "cod_barras": "7630048302155"},
-{"codigo": "60101000020", "descripcion": "TEREA MARINE 20 UDS", "cod_barras": "7630048302162"},
-{"codigo": "60101000021", "descripcion": "TEREA YELLOW SELECTION 20 UDS", "cod_barras": "7630048302179"},
-{"codigo": "60102000004", "descripcion": "IQOS LIL SOLID 2.0", "cod_barras": "8809686510801"},
-{"codigo": "60102000005", "descripcion": "IQOS ILUMA STANDARD", "cod_barras": "7630048303114"},
-{"codigo": "60102000006", "descripcion": "IQOS ILUMA KIT", "cod_barras": "7630048303121"},
-{"codigo": "60102000007", "descripcion": "IQOS 2.4 PLUS", "cod_barras": "7630048303077"},
-{"codigo": "60102000008", "descripcion": "IQOS ILUMA RING", "cod_barras": "7630048302711"},
-{"codigo": "60103000005", "descripcion": "IQOS HEATER CLEANER", "cod_barras": "7630048302728"},
-{"codigo": "60103000006", "descripcion": "IQOS TRAVEL CASE", "cod_barras": "7630048302735"},
-{"codigo": "70101000005", "descripcion": "VELO URBAN VIBE", "cod_barras": "5704841053945"},
-{"codigo": "70101000006", "descripcion": "VELO CITRUS", "cod_barras": "5704841053952"},
-{"codigo": "70101000007", "descripcion": "VELO FREEZE", "cod_barras": "5704841053969"},
-{"codigo": "70101000008", "descripcion": "VELO ROYAL PURPLE", "cod_barras": "5704841053976"},
-{"codigo": "70101000009", "descripcion": "VELO RUBY BERRY", "cod_barras": "5704841053983"},
-{"codigo": "70201000005", "descripcion": "VUSE POD POLAR MINT", "cod_barras": "4031300168615"},
-{"codigo": "70201000006", "descripcion": "VUSE POD STRAWBERRY", "cod_barras": "4031300168622"},
-{"codigo": "70201000007", "descripcion": "VUSE ePOD 2 MINI KIT", "cod_barras": "4031300168721"},
-{"codigo": "70201000008", "descripcion": "VUSE ePEN 3 KIT", "cod_barras": "4031300168738"},
-{"codigo": "70301000004", "descripcion": "BLU INTENSE POD MANGO APRICOT", "cod_barras": "4031300257005"},
-{"codigo": "70301000005", "descripcion": "BLU INTENSE POD TOBACCO", "cod_barras": "4031300257012"},
-{"codigo": "80101000016", "descripcion": "DRUM ORIGINAL 30g", "cod_barras": "8710908948766"},
-{"codigo": "80101000017", "descripcion": "DRUM BLUE 30g", "cod_barras": "8710908948773"},
-{"codigo": "80101000018", "descripcion": "DUCADO AZUL 30g", "cod_barras": "8410016400862"},
-{"codigo": "80101000019", "descripcion": "WEST ORIGINAL 30g", "cod_barras": "4001090302876"},
-{"codigo": "80101000020", "descripcion": "FORTUNA BLEND 30g", "cod_barras": "8410016001012"},
-{"codigo": "80101000021", "descripcion": "MAC BAREN AMSTERDAMER 30g", "cod_barras": "5707294249217"},
-{"codigo": "80101000022", "descripcion": "AMBASSADOR ORIGINAL 30g", "cod_barras": "8410016400879"},
-{"codigo": "90101000015", "descripcion": "OCB SLIM ULTIMATE 32 LIBRILLOS", "cod_barras": "3057067170153"},
-{"codigo": "90101000016", "descripcion": "RIZLA GREEN 50 LIBRILLOS", "cod_barras": "5410113302161"},
-{"codigo": "90101000017", "descripcion": "FILTROS RAW 120 UDS", "cod_barras": "716165178502"},
-{"codigo": "90101000018", "descripcion": "TUBOS OCB 200 UDS", "cod_barras": "3057067190212"},
-{"codigo": "100101000016", "descripcion": "GRINDER RAW 2 PARTES", "cod_barras": "716165178419"},
-{"codigo": "100101000017", "descripcion": "PIPA METALICA STANDARD", "cod_barras": "8435047502090"},
-{"codigo": "100101000018", "descripcion": "BOLSAS ZIP PEQUEÑAS 100 UDS", "cod_barras": "8424295101025"},
-{"codigo": "100101000019", "descripcion": "CLIPPER ENCENDEDOR MINI", "cod_barras": "8412765903271"},
-{"codigo": "100101000020", "descripcion": "BIC ENCENDEDOR ELECTRÓNICO", "cod_barras": "3086126903019"},
-{"codigo": "100101000021", "descripcion": "CLIPPER ENCENDEDOR MICRO", "cod_barras": "8412765903295"},
-{"codigo": "100101000022", "descripcion": "CLIPPER GAS 90ML", "cod_barras": "8412765901819"},
-{"codigo": "100101000023", "descripcion": "OCB MAQUINA LIAR SLIM", "cod_barras": "3057067170115"},
-{"codigo": "100101000024", "descripcion": "OCB MAQUINA LIAR REGULAR", "cod_barras": "3057067170122"},
-{"codigo": "100101000025", "descripcion": "MAQUINA LIAR SMOKING", "cod_barras": "8414775016300"},
-{"codigo": "100101000026", "descripcion": "MAQUINA TUBOS SMOKING", "cod_barras": "8414775016324"},
-{"codigo": "100101000027", "descripcion": "PAPEL RAW KING SIZE SLIM", "cod_barras": "716165177405"},
-{"codigo": "100101000028", "descripcion": "PAPEL RIZLA SILVER KS SLIM", "cod_barras": "5410113302208"},
-{"codigo": "100101000029", "descripcion": "PAPEL SMOKING GOLD KS SLIM", "cod_barras": "8414775012159"},
-{"codigo": "100101000030", "descripcion": "PAPEL SMOKING BROWN KS SLIM", "cod_barras": "8414775012173"},
-{"codigo": "100101000031", "descripcion": "OCB SLIM VIRGIN 32 LIBRILLOS", "cod_barras": "3057067170139"},
-{"codigo": "100101000032", "descripcion": "OCB XPERT VIRGIN 50 LIBRILLOS", "cod_barras": "3057067190205"},
-{"codigo": "100101000033", "descripcion": "PAPEL OCB BAMBOO KS SLIM", "cod_barras": "3057067170160"},
-{"codigo": "100101000034", "descripcion": "RAW BAMBOO KS SLIM 32 LIBRILLOS", "cod_barras": "716165279520"},
-{"codigo": "100101000035", "descripcion": "FILTROS OCB VIRGIN 150 UDS", "cod_barras": "3057067180763"},
-{"codigo": "100101000036", "descripcion": "FILTROS RAW SLIM 120 UDS", "cod_barras": "716165178397"},
-{"codigo": "100101000037", "descripcion": "FILTROS SMOKING WHITE 120 UDS", "cod_barras": "8414775016249"},
-{"codigo": "100101000038", "descripcion": "TUBOS RAW 200 UDS", "cod_barras": "716165179851"},
-{"codigo": "100101000039", "descripcion": "TUBOS OCB VIRGIN 200 UDS", "cod_barras": "3057067190236"},
-{"codigo": "100101000040", "descripcion": "TUBOS RIZLA MENTHOL 100 UDS", "cod_barras": "5410113307029"},
-    {"codigo": "60101000013", "descripcion": "TEREA TURQUOISE 20 UDS", "cod_barras": "7630048302094"},
-    {"codigo": "60101000014", "descripcion": "TEREA SIENNA 20 UDS", "cod_barras": "7630048302100"},
-    {"codigo": "60101000015", "descripcion": "TEREA PURPLE 20 UDS", "cod_barras": "7630048302117"},
-    {"codigo": "60101000016", "descripcion": "TEREA FUSION MENTHOL 20 UDS", "cod_barras": "7630048302124"},
-    {"codigo": "60101000017", "descripcion": "TEREA MENTHOL 20 UDS", "cod_barras": "7630048302131"},
-    {"codigo": "60102000001", "descripcion": "IQOS ILUMA ONE", "cod_barras": "7630048303091"},
-    {"codigo": "60102000002", "descripcion": "IQOS ILUMA PRIME", "cod_barras": "7630048303107"},
-    {"codigo": "60102000003", "descripcion": "IQOS 3 DUO", "cod_barras": "7630048303084"},
-    {"codigo": "60103000001", "descripcion": "IQOS CLEANING STICKS 30U", "cod_barras": "7630048302506"},
-    {"codigo": "60103000002", "descripcion": "IQOS ILUMA CAP", "cod_barras": "7630048302704"},
-    {"codigo": "60103000003", "descripcion": "IQOS CARGADOR USB", "cod_barras": "7630048302681"},
-    {"codigo": "60103000004", "descripcion": "IQOS HOLDER", "cod_barras": "7630048302674"},
-
-    {"codigo": "70101000005", "descripcion": "VELO ROYAL PURPLE", "cod_barras": "5704841053945"},
-    {"codigo": "70101000006", "descripcion": "VELO RUBY BERRY", "cod_barras": "5704841053952"},
-
-    {"codigo": "70201000005", "descripcion": "VUSE POD MINT", "cod_barras": "4031300168615"},
-    {"codigo": "70201000006", "descripcion": "VUSE POD BLEND 12", "cod_barras": "4031300168622"},
-    {"codigo": "70201000007", "descripcion": "VUSE POD CHERRY", "cod_barras": "4031300168639"},
-    {"codigo": "70201000008", "descripcion": "VUSE GO WATERMELON ICE", "cod_barras": "4031300168721"},
-
-    {"codigo": "70301000004", "descripcion": "BLU INTENSE POD TOBACCO", "cod_barras": "4031300257005"},
-    {"codigo": "70301000005", "descripcion": "BLU INTENSE POD MINT", "cod_barras": "4031300257012"},
-
-    {"codigo": "80101000016", "descripcion": "AMERICAN SPIRIT ORIGINAL BLEND 30g", "cod_barras": "4001012042922"},
-    {"codigo": "80101000017", "descripcion": "AMERICAN SPIRIT PERIQUE 30g", "cod_barras": "4001012042939"},
-    {"codigo": "80101000018", "descripcion": "WEST ORIGINAL 30g", "cod_barras": "4001090302876"},
-    {"codigo": "80101000019", "descripcion": "FINE CUT GOLD 30g", "cod_barras": "5000157118436"},
-    {"codigo": "80101000020", "descripcion": "AMBASSADOR AMERICAN BLEND 30g", "cod_barras": "8410016400862"},
-
-    {"codigo": "90101000015", "descripcion": "FILTROS SMOKING RED 120 UDS", "cod_barras": "8414775016256"},
-    {"codigo": "90101000016", "descripcion": "RAW ORGANIC 32 LIBRILLOS", "cod_barras": "716165274749"},
-    {"codigo": "90101000017", "descripcion": "RAW CLASSIC 1¼ 50 LIBRILLOS", "cod_barras": "716165277320"},
-    {"codigo": "90101000018", "descripcion": "OCB PREMIUM 1¼ 25 LIBRILLOS", "cod_barras": "3057067170177"},
-    {"codigo": "90101000019", "descripcion": "OCB X-PERT SLIM FIT", "cod_barras": "3057067190212"},
-    {"codigo": "100101000016", "descripcion": "CLIPPER ENCENDEDOR MICRO METAL", "cod_barras": "8412765903271"},
-    {"codigo": "100101000017", "descripcion": "CLIPPER GAS 90ML", "cod_barras": "8412765901819"},
-    {"codigo": "100101000018", "descripcion": "CLIPPER GAS 300ML PACK 3", "cod_barras": "8412765901826"},
-    {"codigo": "100101000019", "descripcion": "BIC ENCENDEDOR ELECTRÓNICO", "cod_barras": "3086126903019"},
-    {"codigo": "100101000020", "descripcion": "CLIPPER GAS 150ML", "cod_barras": "8412765901833"},
-    {"codigo": "100101000021", "descripcion": "OCB MAQUINA LIAR SLIM", "cod_barras": "3057067170115"},
-    {"codigo": "100101000022", "descripcion": "OCB MAQUINA LIAR REGULAR", "cod_barras": "3057067170122"},
-    {"codigo": "100101000023", "descripcion": "MAQUINA LIAR SMOKING", "cod_barras": "8414775016300"},
-    {"codigo": "100101000024", "descripcion": "MAQUINA TUBOS SMOKING", "cod_barras": "8414775016324"},
-    {"codigo": "100101000025", "descripcion": "PAPEL RAW KING SIZE SLIM", "cod_barras": "716165177405"},
-    {"codigo": "100101000026", "descripcion": "PAPEL RIZLA SILVER KS SLIM", "cod_barras": "5410113302208"},
-    {"codigo": "100101000027", "descripcion": "PAPEL SMOKING GOLD KS SLIM", "cod_barras": "8414775012159"},
-    {"codigo": "100101000028", "descripcion": "PAPEL SMOKING BROWN KS SLIM", "cod_barras": "8414775012173"},
-    {"codigo": "100101000029", "descripcion": "OCB SLIM VIRGIN 32 LIBRILLOS", "cod_barras": "3057067170139"},
-    {"codigo": "100101000030", "descripcion": "OCB XPERT VIRGIN 50 LIBRILLOS", "cod_barras": "3057067190205"},
-    {"codigo": "100101000031", "descripcion": "PAPEL OCB BAMBOO KS SLIM", "cod_barras": "3057067170160"},
-    {"codigo": "100101000032", "descripcion": "RAW BAMBOO KS SLIM 32 LIBRILLOS", "cod_barras": "716165279520"},
-    {"codigo": "100101000033", "descripcion": "FILTROS OCB VIRGIN 150 UDS", "cod_barras": "3057067180763"},
-    {"codigo": "100101000034", "descripcion": "FILTROS RAW SLIM 120 UDS", "cod_barras": "716165178397"},
-    {"codigo": "100101000035", "descripcion": "FILTROS SMOKING WHITE 120 UDS", "cod_barras": "8414775016249"},
-    {"codigo": "100101000036", "descripcion": "TUBOS RAW 200 UDS", "cod_barras": "716165179851"},
-    {"codigo": "100101000037", "descripcion": "TUBOS OCB VIRGIN 200 UDS", "cod_barras": "3057067190236"},
-    {"codigo": "100101000038", "descripcion": "TUBOS RIZLA MENTHOL 100 UDS", "cod_barras": "5410113307029"}
+  {
+    "codigo":"Z010100000",
+    "descripcion":"CAMEL FILTERS CARTON 10x20 Ud.",
+    "cod_barras":8416500140962
+  },
+  {
+    "codigo":"Z010100001",
+    "descripcion":"CAMEL BLUE CARTON 10x20 Udes.",
+    "cod_barras":8416500010784
+  },
+  {
+    "codigo":"Z010100002",
+    "descripcion":"CAMEL FILTERS SOFT 10x20 Udes.",
+    "cod_barras":8416500800866
+  },
+  {
+    "codigo":"Z010100003",
+    "descripcion":"CAMEL ACTIVA DOBLE 20x10 Udes.",
+    "cod_barras":8416500103325
+  },
+  {
+    "codigo":"Z010100004",
+    "descripcion":"CAMEL ACTIVA 10x20 Udes.",
+    "cod_barras":8416500103257
+  },
+  {
+    "codigo":"Z010100020",
+    "descripcion":"CAMEL RYO LEGEND 10X30 Grms.",
+    "cod_barras":8416500021797
+  },
+  {
+    "codigo":"Z010200000",
+    "descripcion":"WINSTON CLAS.BOX CT 10x20 Ude.",
+    "cod_barras":8416500140948
+  },
+  {
+    "codigo":"Z010200001",
+    "descripcion":"WINSTON RED SOFT CT 10x20 Udes",
+    "cod_barras":8416500100300
+  },
+  {
+    "codigo":"Z010200002",
+    "descripcion":"WINSTON RED 100s.CARTON 10X20U",
+    "cod_barras":8416500100621
+  },
+  {
+    "codigo":"Z010200003",
+    "descripcion":"WINSTON RED CARTON 10x20 Udes.",
+    "cod_barras":8416500100294
+  },
+  {
+    "codigo":"Z010200004",
+    "descripcion":"WINSTON BLUE CARTON 10x20 Udes",
+    "cod_barras":8416500101321
+  },
+  {
+    "codigo":"Z010200005",
+    "descripcion":"+WINSTON XS PLUS GOLD 10x20 Ud",
+    "cod_barras":8416500103264
+  },
+  {
+    "codigo":"Z010200006",
+    "descripcion":"WINSTON COMPACT BLUE 10x20 Ud.",
+    "cod_barras":8416500104643
+  },
+  {
+    "codigo":"Z010300000",
+    "descripcion":"+CORONAS BY BENSON ROJO 10x21U",
+    "cod_barras":8416500102236
+  },
+  {
+    "codigo":"Z010400000",
+    "descripcion":"CORONAS NEGRO CLAS.10x20 Udes.",
+    "cod_barras":8416600100118
+  },
+  {
+    "codigo":"Z010400001",
+    "descripcion":"CORONAS NEGRO ORO  10x20 Udes.",
+    "cod_barras":8416600100170
+  },
+  {
+    "codigo":"Z010400002",
+    "descripcion":"KRUGER  CARTON 10x20 Udes.",
+    "cod_barras":8416600100583
+  },
+  {
+    "codigo":"Z010500001",
+    "descripcion":"BENSON LONDON RED  8x24 Udes.",
+    "cod_barras":8416500102700
+  },
+  {
+    "codigo":"Z010500002",
+    "descripcion":"BENSON LONDON RED 100s 10x20Ud",
+    "cod_barras":8416500101932
+  },
+  {
+    "codigo":"Z010500003",
+    "descripcion":"BENSON LONDON BLUE 10x20 Udes.",
+    "cod_barras":9008100288763
+  },
+  {
+    "codigo":"Z010500004",
+    "descripcion":"BENSON LONDON OPTION 10x20 Ud.",
+    "cod_barras":8416500103301
+  },
+  {
+    "codigo":"Z010500006",
+    "descripcion":"BENSON GOLD 10x20 Ud.",
+    "cod_barras":5010175655016
+  },
+  {
+    "codigo":"Z010600000",
+    "descripcion":"SILK CUT WHITE 10x20 Ud.",
+    "cod_barras":5010175500217
+  },
+  {
+    "codigo":"Z010600001",
+    "descripcion":"SILK CUT PURPLE 10x20 Ud.",
+    "cod_barras":5010175500002
+  },
+  {
+    "codigo":"Z010900000",
+    "descripcion":"MAYFAIR KS 10x20 Ud.",
+    "cod_barras":5010175539439
+  },
+  {
+    "codigo":"Z010900001",
+    "descripcion":"MAYFAIR SKY BLUE 10x20 Ud.",
+    "cod_barras":5010175539446
+  },
+  {
+    "codigo":"Z010900020",
+    "descripcion":"STERLING KS 10x20 Ud.",
+    "cod_barras":5010175808603
+  },
+  {
+    "codigo":"Z010900021",
+    "descripcion":"STERLING DUAL 10x20 Ud.",
+    "cod_barras":8416500103318
+  },
+  {
+    "codigo":"Z010900030",
+    "descripcion":"STERLING RYO 10X50g.",
+    "cod_barras":8416500004820
+  },
+  {
+    "codigo":"Z013100005",
+    "descripcion":"AMBER LEAF 5x50Grs",
+    "cod_barras":5010175578889
+  },
+  {
+    "codigo":"Z015000050",
+    "descripcion":"DIP.PLOOM DEVICE AVANCE NAVY B",
+    "cod_barras":8416500020714
+  },
+  {
+    "codigo":"Z015000051",
+    "descripcion":"DIP.PLOOM DEVICE AVANCE SILVER",
+    "cod_barras":8416500005148
+  },
+  {
+    "codigo":"Z015000052",
+    "descripcion":"DIP.PLOOM DEVICE AVANCE BLACK",
+    "cod_barras":8416500005131
+  },
+  {
+    "codigo":"Z015000053",
+    "descripcion":"DIP.PLOOM DEVICE AVANCE CHAMP.",
+    "cod_barras":8416500005155
+  },
+  {
+    "codigo":"Z015000054",
+    "descripcion":"DIP.PLOOM DEVICE ADVANCED RED",
+    "cod_barras":5600868341854
+  },
+  {
+    "codigo":"Z015000055",
+    "descripcion":"DIP.PLOOM DEVICE ADV.ROSE SHIM",
+    "cod_barras":5600868341724
+  },
+  {
+    "codigo":"Z020100001",
+    "descripcion":"FORTUNA RED LINE CT 10x20 Udes",
+    "cod_barras":8416000501355
+  },
+  {
+    "codigo":"Z020100002",
+    "descripcion":"FORTUNA BLUE LINE CT 10x20 Ud.",
+    "cod_barras":8416000501447
+  },
+  {
+    "codigo":"Z020100003",
+    "descripcion":"FORTUNA RED LINE XL  10x20 Ud.",
+    "cod_barras":8416000501539
+  },
+  {
+    "codigo":"Z020100004",
+    "descripcion":"FORTUNA 24 CARTON 8x24 Udes",
+    "cod_barras":8416000501782
+  },
+  {
+    "codigo":"Z020100005",
+    "descripcion":"FORTUNA 29 CARTON   8x29 Udes",
+    "cod_barras":4030600223208
+  },
+  {
+    "codigo":"Z020100006",
+    "descripcion":"+FORTUNA FRESH 10x20 Udes",
+    "cod_barras":4030600250846
+  },
+  {
+    "codigo":"Z020200003",
+    "descripcion":"NEW RED 24 CARTON  8x24 Udes",
+    "cod_barras":3258171940770
+  },
+  {
+    "codigo":"Z020200004",
+    "descripcion":"NEW RED 29 CARTON  8x29 Udes",
+    "cod_barras":4030600222997
+  },
+  {
+    "codigo":"Z020200005",
+    "descripcion":"NEW & CO ROUGE CARTON 10x20Ud.",
+    "cod_barras":4030600194614
+  },
+  {
+    "codigo":"Z020200006",
+    "descripcion":"NEW DUO AIR CARTON 10x20 Udes",
+    "cod_barras":4030600242643
+  },
+  {
+    "codigo":"Z020200007",
+    "descripcion":"NEW RED 100  10X20 UND",
+    "cod_barras":4030600170830
+  },
+  {
+    "codigo":"Z020400001",
+    "descripcion":"PARAMOUNT RED CARTON 10x20 U.",
+    "cod_barras":4030600252512
+  },
+  {
+    "codigo":"Z020400002",
+    "descripcion":"PARAMOUNT RED CARTON 8x25 U.",
+    "cod_barras":4030600260722
+  },
+  {
+    "codigo":"Z023100001",
+    "descripcion":"PICADURA HORIZON 5x30Grs.",
+    "cod_barras":8710900002012
+  },
+  {
+    "codigo":"Z023100002",
+    "descripcion":"PICADURA ORIGENES 10x30Grs.",
+    "cod_barras":8710900082953
+  },
+  {
+    "codigo":"Z023100003",
+    "descripcion":"PICADURA GOLDEN VIRGINIA 10x30",
+    "cod_barras":8710900030008
+  },
+  {
+    "codigo":"Z023100004",
+    "descripcion":"PICADURA HORIZON BLUE 5x30Grs.",
+    "cod_barras":4030700124795
+  },
+  {
+    "codigo":"Z023100005",
+    "descripcion":"PICAD.HORIZON VIRG.GREEN 5x30g",
+    "cod_barras":4030700124764
+  },
+  {
+    "codigo":"Z025000001",
+    "descripcion":"+VAPEADOR MYBLU DISP.BLUE Edit",
+    "cod_barras":8719964004123
+  },
+  {
+    "codigo":"Z025000002",
+    "descripcion":"+VAPEADOR MYBLU DISP.GOLD Edit",
+    "cod_barras":8719964004338
+  },
+  {
+    "codigo":"Z025000003",
+    "descripcion":"+VAPEADOR MYBLU DISP.PURPLE Ed",
+    "cod_barras":8719964004260
+  },
+  {
+    "codigo":"Z025000004",
+    "descripcion":"+VAPEADOR MYBLU DISP.RED Edit.",
+    "cod_barras":8719964003911
+  },
+  {
+    "codigo":"Z025000010",
+    "descripcion":"BLU DRY KIT 2.0 VAPED.BLACK1X5",
+    "cod_barras":8719964031112
+  },
+  {
+    "codigo":"Z025000011",
+    "descripcion":"BLU DRY KIT 2.0 VAPED.BLUEK1X5",
+    "cod_barras":8719964044631
+  },
+  {
+    "codigo":"Z025000100",
+    "descripcion":"+MYBLU Sabor BlueIce Caps.0,0%",
+    "cod_barras":8719964024244
+  },
+  {
+    "codigo":"Z025000101",
+    "descripcion":"+MYBLU Sabor BlueIce Caps.0,8%",
+    "cod_barras":8719874065801
+  },
+  {
+    "codigo":"Z025000120",
+    "descripcion":"+MYBLU Sabor Blueberry Cap1,6%",
+    "cod_barras":8719964024992
+  },
+  {
+    "codigo":"Z025000122",
+    "descripcion":"+MYBLU Sabor Cereza Capsul0,8%",
+    "cod_barras":8719874065740
+  },
+  {
+    "codigo":"Z025000126",
+    "descripcion":"+MYBLU Sabor Green Apple C0,0%",
+    "cod_barras":8719874065702
+  },
+  {
+    "codigo":"Z025000127",
+    "descripcion":"+MYBLU Sabor Green AppleC.0,8%",
+    "cod_barras":8719874065719
+  },
+  {
+    "codigo":"Z025000130",
+    "descripcion":"+MYBLU Sabor Menthol Capsl0,0%",
+    "cod_barras":8719964024183
+  },
+  {
+    "codigo":"Z025000131",
+    "descripcion":"+MYBLU Sabor Menthol Caps.0,8%",
+    "cod_barras":8719874065658
+  },
+  {
+    "codigo":"Z025000132",
+    "descripcion":"+MYBLU Sabor Menthol Capsl1,6%",
+    "cod_barras":8719874068383
+  },
+  {
+    "codigo":"Z025000140",
+    "descripcion":"+MYBLU Sabor Straw\/Mint Cp1,6%",
+    "cod_barras":8719874068376
+  },
+  {
+    "codigo":"Z025000143",
+    "descripcion":"+MYBLU TABAC.CLAS.Capsula 1,6%",
+    "cod_barras":8719874068345
+  },
+  {
+    "codigo":"Z025000144",
+    "descripcion":"+MYBLU Sabor Tobac Capsu 0,8%",
+    "cod_barras":8719874395632
+  },
+  {
+    "codigo":"Z025000145",
+    "descripcion":"BLU POD 2.0 FRESH MINT 0MG 1X5",
+    "cod_barras":8719964031532
+  },
+  {
+    "codigo":"Z025000146",
+    "descripcion":"BLU POD 2.0 TABACCO 0MG 1X5",
+    "cod_barras":8719964031501
+  },
+  {
+    "codigo":"Z025000147",
+    "descripcion":"BLU POD 2.0 BLUE ICE 9MG 1X5",
+    "cod_barras":8719964031327
+  },
+  {
+    "codigo":"Z025000148",
+    "descripcion":"BLU POD 2.0 TABACCO 18MG 1X5",
+    "cod_barras":8719964031174
+  },
+  {
+    "codigo":"Z025000149",
+    "descripcion":"BLU POD 2.0 BLUE ICE 18MG 1X5",
+    "cod_barras":8719964031358
+  },
+  {
+    "codigo":"Z025000150",
+    "descripcion":"BLU POD 2.0 TABACCO 9MG 1X5",
+    "cod_barras":8719964031143
+  },
+  {
+    "codigo":"Z025000151",
+    "descripcion":"BLU POD2.0 FRESH MANGO 18MG1X5",
+    "cod_barras":8719964031471
+  },
+  {
+    "codigo":"Z025000152",
+    "descripcion":"BLU POD 2.0 POLAR MENT 9MG 1X5",
+    "cod_barras":8719964031204
+  },
+  {
+    "codigo":"Z025000153",
+    "descripcion":"BLU POD2.0 GREEN APPLE 18MG1X5",
+    "cod_barras":8719964034878
+  },
+  {
+    "codigo":"Z025000154",
+    "descripcion":"BLU POD2.0 STRAWB&MINT 9MG 1X5",
+    "cod_barras":8719964034908
+  },
+  {
+    "codigo":"Z025000155",
+    "descripcion":"BLU POD 2.0 UVA ICE 9MG 1X5",
+    "cod_barras":8719964044990
+  },
+  {
+    "codigo":"Z025000170",
+    "descripcion":"BLU BAR MANG.20MG 1000PUF 1X10",
+    "cod_barras":8719964052889
+  },
+  {
+    "codigo":"Z025000171",
+    "descripcion":"BLU BAR MANZAN.20MG 1000P.1X10",
+    "cod_barras":8719964052407
+  },
+  {
+    "codigo":"Z025000172",
+    "descripcion":"BLU BAR ARD-CZ.20MG 1000P.1X10",
+    "cod_barras":8719964052674
+  },
+  {
+    "codigo":"Z025000173",
+    "descripcion":"BLU BAR TROP.M.20MG 1000P.1X10",
+    "cod_barras":8719964052582
+  },
+  {
+    "codigo":"Z025000174",
+    "descripcion":"BLU BAR BLUE I.20MG 1000P.1X10",
+    "cod_barras":8719964052285
+  },
+  {
+    "codigo":"Z025000175",
+    "descripcion":"BLU BAR F.BOSQ.20MG 1000P.1X10",
+    "cod_barras":8719964052919
+  },
+  {
+    "codigo":"Z025000176",
+    "descripcion":"BLU BAR KIWI P.20MG 1000P.1X10",
+    "cod_barras":8719964052810
+  },
+  {
+    "codigo":"Z025000190",
+    "descripcion":"BLU BOX 1.0 WATERM.20mg 800p10",
+    "cod_barras":8719964056955
+  },
+  {
+    "codigo":"Z025000191",
+    "descripcion":"BLU BOX 1.0 STAWBE.20mg 800p10",
+    "cod_barras":8719964056986
+  },
+  {
+    "codigo":"Z025000192",
+    "descripcion":"BLU BOX 1.0 F.ROJOS20mg 800p10",
+    "cod_barras":8719964057044
+  },
+  {
+    "codigo":"Z025000193",
+    "descripcion":"BLU BOX 1.0 BLUE 20mg 800p10",
+    "cod_barras":8719964057013
+  },
+  {
+    "codigo":"Z025000194",
+    "descripcion":"BLU BOX 1.0 PINEAP.20mg 800p10",
+    "cod_barras":8719964056894
+  },
+  {
+    "codigo":"Z030100004",
+    "descripcion":"+MARLBORO SILVER  CT 10x20 Ud.",
+    "cod_barras":8437012200630
+  },
+  {
+    "codigo":"Z030100007",
+    "descripcion":"MARLBORO POCKET PACK 10x20 Uds",
+    "cod_barras":8437008795157
+  },
+  {
+    "codigo":"Z030100008",
+    "descripcion":"+MARLBORO MIX  CT 10x20 Ud.",
+    "cod_barras":8436555610067
+  },
+  {
+    "codigo":"Z030100009",
+    "descripcion":"+MARLBORO TOUCH  CT 10x20 Ud.",
+    "cod_barras":8436555614676
+  },
+  {
+    "codigo":"Z030100010",
+    "descripcion":"MARLBORO CRAFTED  CT 10x20 Ud.",
+    "cod_barras":8436555618186
+  },
+  {
+    "codigo":"Z030100011",
+    "descripcion":"+MARLBORO 25 CT 8X25Ud.",
+    "cod_barras":8436555619435
+  },
+  {
+    "codigo":"Z030100012",
+    "descripcion":"+MARLBORO RED BOX 21 10X21",
+    "cod_barras":8436609722012
+  },
+  {
+    "codigo":"Z030100013",
+    "descripcion":"MARLBORO BOX 24   8X24",
+    "cod_barras":8436609722111
+  },
+  {
+    "codigo":"Z030200000",
+    "descripcion":"L&M RED 8x24 Ud.",
+    "cod_barras":8436555618780
+  },
+  {
+    "codigo":"Z030200001",
+    "descripcion":"L&M RED CARTON 10x20 Ud.",
+    "cod_barras":8437008795775
+  },
+  {
+    "codigo":"Z030200002",
+    "descripcion":"L&M BLUE CARTON 10x20 Ud.",
+    "cod_barras":8437012200470
+  },
+  {
+    "codigo":"Z030200003",
+    "descripcion":"+L&M FORWARD CARTON 10x20 Ud.",
+    "cod_barras":8436555610814
+  },
+  {
+    "codigo":"Z030200004",
+    "descripcion":"L&M POCKET RED CARTON 10x20 Ud",
+    "cod_barras":8437008795829
+  },
+  {
+    "codigo":"Z030200005",
+    "descripcion":"L&M POCKET BLUE CARTON 10x20U.",
+    "cod_barras":8437008795843
+  },
+  {
+    "codigo":"Z030200006",
+    "descripcion":"L&M FIRST CUT CARTON 10x20 Ud.",
+    "cod_barras":8436555617172
+  },
+  {
+    "codigo":"Z030300002",
+    "descripcion":"CHESTERFIELD RED KS  8x24 Ud.",
+    "cod_barras":8436555614553
+  },
+  {
+    "codigo":"Z030300010",
+    "descripcion":"CHESTER.CIGARRITOS REMIX 10X17",
+    "cod_barras":8436609722494
+  },
+  {
+    "codigo":"Z030400003",
+    "descripcion":"+PHILIP MORRIS DARK B.10x20 Ud",
+    "cod_barras":8436555611552
+  },
+  {
+    "codigo":"Z030400004",
+    "descripcion":"PHILIP MORRIS RED KS  8x24 Ud.",
+    "cod_barras":8436555611187
+  },
+  {
+    "codigo":"Z031000001",
+    "descripcion":"+HEETS IQOS RUSSET 1x10 Ud.",
+    "cod_barras":8436555615383
+  },
+  {
+    "codigo":"Z031000002",
+    "descripcion":"+HEETS IQOS AMBER 1x10 Ud.",
+    "cod_barras":8436555610890
+  },
+  {
+    "codigo":"Z031000003",
+    "descripcion":"+HEETS IQOS YELLOW 1x10 Ud.",
+    "cod_barras":8436555610913
+  },
+  {
+    "codigo":"Z031000004",
+    "descripcion":"+HEETS IQOS BLUE 1x10 Ud.",
+    "cod_barras":8436555614126
+  },
+  {
+    "codigo":"Z031000005",
+    "descripcion":"+HEETS IQOS TURQUOISE 1x10 Ud.",
+    "cod_barras":8436555610937
+  },
+  {
+    "codigo":"Z031000006",
+    "descripcion":"+HEETS IQOS SIENNA 1x10 Ud.",
+    "cod_barras":8436555613099
+  },
+  {
+    "codigo":"Z031000007",
+    "descripcion":"+HEETS IQOS BRONZE 1x10 Ud.",
+    "cod_barras":8436555613150
+  },
+  {
+    "codigo":"Z031000008",
+    "descripcion":"+HEETS IQOS SIENNA CAPS 1x10Ud",
+    "cod_barras":8436555615000
+  },
+  {
+    "codigo":"Z031000009",
+    "descripcion":"+HEETS IQOS GREEN 1x10 Ud.",
+    "cod_barras":8436555614935
+  },
+  {
+    "codigo":"Z031000010",
+    "descripcion":"+HEETS IQOS TEAK 1x10 Ud.",
+    "cod_barras":8436555615406
+  },
+  {
+    "codigo":"Z031000011",
+    "descripcion":"+HEETS IQOS MAUVE 1x10 Ud.",
+    "cod_barras":8436555618001
+  },
+  {
+    "codigo":"Z031000100",
+    "descripcion":"HEETS IQOS TRIPACK",
+    "cod_barras":8436555615628
+  },
+  {
+    "codigo":"Z031000200",
+    "descripcion":"TEREA IQOS AMBER 1x10 Ud.",
+    "cod_barras":8436555616595
+  },
+  {
+    "codigo":"Z031000201",
+    "descripcion":"TEREA IQOS YELLOW 1x10 Ud.",
+    "cod_barras":8436555617073
+  },
+  {
+    "codigo":"Z031000202",
+    "descripcion":"TEREA IQOS TURQUOISE 1x10 Ud.",
+    "cod_barras":8436555617059
+  },
+  {
+    "codigo":"Z031000203",
+    "descripcion":"TEREA IQOS SIENNA 1x10 Ud.",
+    "cod_barras":8436555617097
+  },
+  {
+    "codigo":"Z031000204",
+    "descripcion":"+TEREA IQOS BLUE 1x10 Ud.",
+    "cod_barras":8436555617035
+  },
+  {
+    "codigo":"Z031000205",
+    "descripcion":"+TEREA IQOS MAUVE 1x10 Ud.",
+    "cod_barras":8436555618018
+  },
+  {
+    "codigo":"Z031000206",
+    "descripcion":"TEREA IQOS RUSSET 1x10 Ud.",
+    "cod_barras":8436555617158
+  },
+  {
+    "codigo":"Z031000207",
+    "descripcion":"TEREA IQOS TEAK 1x10 Ud.",
+    "cod_barras":8436555617134
+  },
+  {
+    "codigo":"Z031000208",
+    "descripcion":"TEREA IQOS WARM FUSE 1x10 Ud.",
+    "cod_barras":8436609721572
+  },
+  {
+    "codigo":"Z031000209",
+    "descripcion":"TEREA IQOS SOFT FUSE 1x10 Ud.",
+    "cod_barras":8436555619053
+  },
+  {
+    "codigo":"Z031000260",
+    "descripcion":"TEREA IQOS TRIPACK",
+    "cod_barras":8436555618834
+  },
+  {
+    "codigo":"Z031000300",
+    "descripcion":"+FIIT ROXO MNT  1x10 Ud.",
+    "cod_barras":8436555618353
+  },
+  {
+    "codigo":"Z031000301",
+    "descripcion":"+FIIT REGULAR   1x10 Ud.",
+    "cod_barras":8436555616212
+  },
+  {
+    "codigo":"Z031000302",
+    "descripcion":"+FIIT MARINE MNT 1x10 Ud.",
+    "cod_barras":8436555616236
+  },
+  {
+    "codigo":"Z031000303",
+    "descripcion":"+FIIT REGULAR DEEP 1x10 Ud.",
+    "cod_barras":8436555618339
+  },
+  {
+    "codigo":"Z031000304",
+    "descripcion":"FIIT REGULAR SKY 1x10 Ud.",
+    "cod_barras":8436555618865
+  },
+  {
+    "codigo":"Z032000001",
+    "descripcion":"DANNEMANN MOODS S\/FILTRO 5X20u",
+    "cod_barras":8414912510205
+  },
+  {
+    "codigo":"Z032000003",
+    "descripcion":"DANNEMANN MOODS C\/FILT.10x20Ud",
+    "cod_barras":8414912522000
+  },
+  {
+    "codigo":"Z033000001",
+    "descripcion":"DON JULIAN Nº1 5x5Uds",
+    "cod_barras":8414912310058
+  },
+  {
+    "codigo":"Z033000002",
+    "descripcion":"DON JULIAN Nº5 5x5Uds",
+    "cod_barras":8414912340055
+  },
+  {
+    "codigo":"Z035000001",
+    "descripcion":"+IQOS 2.4+Navy",
+    "cod_barras":8436555611668
+  },
+  {
+    "codigo":"Z035000002",
+    "descripcion":"+IQOS 2.4+White",
+    "cod_barras":8436555611651
+  },
+  {
+    "codigo":"Z035000003",
+    "descripcion":"+IQOS MULTI Dorado",
+    "cod_barras":8436555613587
+  },
+  {
+    "codigo":"Z035000004",
+    "descripcion":"+IQOS 3 Duo Azul",
+    "cod_barras":8436555614454
+  },
+  {
+    "codigo":"Z035000020",
+    "descripcion":"IQOS Iluma AZURE BLUE",
+    "cod_barras":8436555617813
+  },
+  {
+    "codigo":"Z035000021",
+    "descripcion":"IQOS Iluma MOSS GREEN",
+    "cod_barras":8436555617653
+  },
+  {
+    "codigo":"Z035000022",
+    "descripcion":"IQOS Iluma SUNSET RED",
+    "cod_barras":8436555617714
+  },
+  {
+    "codigo":"Z035000023",
+    "descripcion":"IQOS Iluma PEBBLE GREY",
+    "cod_barras":8436555617677
+  },
+  {
+    "codigo":"Z035000024",
+    "descripcion":"IQOS Iluma PEBBLE BEIG",
+    "cod_barras":8436555617790
+  },
+  {
+    "codigo":"Z035000025",
+    "descripcion":"IQOS Iluma ONE AZURE BLUE",
+    "cod_barras":8436555617271
+  },
+  {
+    "codigo":"Z035000026",
+    "descripcion":"IQOS Iluma ONE MOSS GREEN",
+    "cod_barras":7622100597193
+  },
+  {
+    "codigo":"Z035000027",
+    "descripcion":"IQOS Iluma ONE PEBBLE BEIGE",
+    "cod_barras":8436555617257
+  },
+  {
+    "codigo":"Z035000028",
+    "descripcion":"IQOS Iluma ONE PEBBLE GREY",
+    "cod_barras":8436555617219
+  },
+  {
+    "codigo":"Z035000029",
+    "descripcion":"IQOS Iluma ONE SUNSET RED",
+    "cod_barras":8436555617196
+  },
+  {
+    "codigo":"Z035000100",
+    "descripcion":"+LIL SOLID 2,0 COSMIC BLUE",
+    "cod_barras":8436555616434
+  },
+  {
+    "codigo":"Z035000101",
+    "descripcion":"+LIL SOLID 2,0 STONE GREY",
+    "cod_barras":8436555616373
+  },
+  {
+    "codigo":"Z040100001",
+    "descripcion":"MECANICO ESP.VERDE 10x20 Udes",
+    "cod_barras":8421572000021
+  },
+  {
+    "codigo":"Z040100002",
+    "descripcion":"MECANICO EXTRAF.AZUL 10x20 Ud.",
+    "cod_barras":8421572000076
+  },
+  {
+    "codigo":"Z040300001",
+    "descripcion":"CLEVER CARTON 10x20 Udes",
+    "cod_barras":8421572100110
+  },
+  {
+    "codigo":"Z040300050",
+    "descripcion":"ELIXYR RED 10X20",
+    "cod_barras":5450524053436
+  },
+  {
+    "codigo":"Z040300051",
+    "descripcion":"ELIXYR PLUS 10X20",
+    "cod_barras":5400827017420
+  },
+  {
+    "codigo":"Z040500002",
+    "descripcion":"ROTHMANS LON.BLUE SMOOTH 10x20",
+    "cod_barras":8421881205407
+  },
+  {
+    "codigo":"Z040500003",
+    "descripcion":"+ROTHMANS SURROUND 10x20",
+    "cod_barras":8421881003775
+  },
+  {
+    "codigo":"Z040500004",
+    "descripcion":"ROTHMANS ESSENCE 10x20",
+    "cod_barras":5000219010635
+  },
+  {
+    "codigo":"Z040500005",
+    "descripcion":"ROTHMANS LONDON RED 24 8X24",
+    "cod_barras":8421881006745
+  },
+  {
+    "codigo":"Z040500006",
+    "descripcion":"ROTHMANS LONDON RED 100S 10X20",
+    "cod_barras":8421881017420
+  },
+  {
+    "codigo":"Z040500050",
+    "descripcion":"PALL MALL NEW ORLE.RED 10X20Un",
+    "cod_barras":4031300009482
+  },
+  {
+    "codigo":"Z040500051",
+    "descripcion":"PALL MALL S.FRANC.BLUE 10X20Un",
+    "cod_barras":4031800001122
+  },
+  {
+    "codigo":"Z040600001",
+    "descripcion":"DUNHILL INTERNATIONAL  10x20",
+    "cod_barras":8721700917512
+  },
+  {
+    "codigo":"Z040700002",
+    "descripcion":"LUCKY STRIKE S\/ADITIVOS 10x20U",
+    "cod_barras":4031300095171
+  },
+  {
+    "codigo":"Z040700003",
+    "descripcion":"LUCKY STRIKE ECLIPSE 10x20U",
+    "cod_barras":8421881001658
+  },
+  {
+    "codigo":"Z040700004",
+    "descripcion":"LUCKY STRIKE TWIST 10x20U",
+    "cod_barras":8421881003782
+  },
+  {
+    "codigo":"Z040700005",
+    "descripcion":"LUCKY STRIKE SILVER BAY 10X20U",
+    "cod_barras":5000219046580
+  },
+  {
+    "codigo":"Z040700010",
+    "descripcion":"LUCKY STRIKE S\/ADITIVO 24 8X24",
+    "cod_barras":8421881006332
+  },
+  {
+    "codigo":"Z040800001",
+    "descripcion":"VOGUE BLUE 10x20 Udes.",
+    "cod_barras":5000219021891
+  },
+  {
+    "codigo":"Z040800020",
+    "descripcion":"JPS RED CARTON 10X20 Und.",
+    "cod_barras":8421881017406
+  },
+  {
+    "codigo":"Z040800025",
+    "descripcion":"JPS BLUE CARTON 10X20 Und.",
+    "cod_barras":5998900427131
+  },
+  {
+    "codigo":"Z040890001",
+    "descripcion":"+NEO FRESCO MENTHOL 10X20 Und.",
+    "cod_barras":8421881008398
+  },
+  {
+    "codigo":"Z040890002",
+    "descripcion":"NEO CLASIC TABACCO 10X20 Und.",
+    "cod_barras":8421881008305
+  },
+  {
+    "codigo":"Z040890003",
+    "descripcion":"+NEO FRUTOS ROJOS 10X20 Und.",
+    "cod_barras":8421881008459
+  },
+  {
+    "codigo":"Z040890004",
+    "descripcion":"NEO GOLDEN TABACCO 10X20 Und.",
+    "cod_barras":8421881002396
+  },
+  {
+    "codigo":"Z040890005",
+    "descripcion":"NEO TERRACOTA 10X20 Und.",
+    "cod_barras":8421881008336
+  },
+  {
+    "codigo":"Z040890006",
+    "descripcion":"+NEO BERYL CLICK 10X20 Und.",
+    "cod_barras":8421881014641
+  },
+  {
+    "codigo":"Z040890007",
+    "descripcion":"+NEO BLUE CLICK 10X20 Und.",
+    "cod_barras":8421881008367
+  },
+  {
+    "codigo":"Z040890030",
+    "descripcion":"VEO PURPLE CLICK 1X20 Und.",
+    "cod_barras":8421881016997
+  },
+  {
+    "codigo":"Z040890031",
+    "descripcion":"VEO SCARLET CLICK 1X20 Und.",
+    "cod_barras":8421881016973
+  },
+  {
+    "codigo":"Z040890032",
+    "descripcion":"VEO GREEN CLICK 1X20 Und.",
+    "cod_barras":8421881016881
+  },
+  {
+    "codigo":"Z040890033",
+    "descripcion":"VEO ARCTIC CLICK 1X20 Und.",
+    "cod_barras":8421881016911
+  },
+  {
+    "codigo":"Z040890035",
+    "descripcion":"VEO TROPICAL TWIST 10X20Und.",
+    "cod_barras":8421881030504
+  },
+  {
+    "codigo":"Z040900001",
+    "descripcion":"+VUSE GO BER.WATEMR.0%NIC.1X10",
+    "cod_barras":8421882007185
+  },
+  {
+    "codigo":"Z040900002",
+    "descripcion":"+VUSE GO BLUEBERRY 0%NIC.1X10",
+    "cod_barras":8421881006967
+  },
+  {
+    "codigo":"Z040900003",
+    "descripcion":"+VUSE GO PEPPER.ICE O%NIC.1X10",
+    "cod_barras":8421882007215
+  },
+  {
+    "codigo":"Z040900010",
+    "descripcion":"+VUSE GO BERRY ICE 500 1X10",
+    "cod_barras":8421881006424
+  },
+  {
+    "codigo":"Z040900011",
+    "descripcion":"+VUSE GO BLUEBERR.ICE 500 1X10",
+    "cod_barras":8421882007062
+  },
+  {
+    "codigo":"Z040900012",
+    "descripcion":"+VUSE GO CREAMI TOBAC.500 1X10",
+    "cod_barras":8421881006394
+  },
+  {
+    "codigo":"Z040900013",
+    "descripcion":"+VUSE GO GRAPE ICE 500 1X10",
+    "cod_barras":8421882007093
+  },
+  {
+    "codigo":"Z040900014",
+    "descripcion":"+VUSE GO MANGO ICE 500 1X10",
+    "cod_barras":8421881006516
+  },
+  {
+    "codigo":"Z040900015",
+    "descripcion":"+VUSE GO PEPPERMI,ICE 500 1X10",
+    "cod_barras":8421881006486
+  },
+  {
+    "codigo":"Z040900016",
+    "descripcion":"+VUSE GO STRAWBER.ICE 500 1X10",
+    "cod_barras":8421881006578
+  },
+  {
+    "codigo":"Z040900017",
+    "descripcion":"+VUSE GO WATERMEL.ICE 500 1X10",
+    "cod_barras":8421881006639
+  },
+  {
+    "codigo":"Z040900018",
+    "descripcion":"+VUSE GO BERRY\/WATER.ICE 1X10",
+    "cod_barras":8421882007031
+  },
+  {
+    "codigo":"Z040900020",
+    "descripcion":"+VUSE GO BERRY\/WATER.700p.1x10",
+    "cod_barras":8421881017666
+  },
+  {
+    "codigo":"Z040900021",
+    "descripcion":"+VUSE GO BLUEBER.ICE 700p.1x10",
+    "cod_barras":8421881017697
+  },
+  {
+    "codigo":"Z040900022",
+    "descripcion":"+VUSE GO WATERML.ICE 700p.1x10",
+    "cod_barras":8421881017819
+  },
+  {
+    "codigo":"Z040900023",
+    "descripcion":"+VUSE GO BANANA ICE 700pf.1x10",
+    "cod_barras":8421881017901
+  },
+  {
+    "codigo":"Z040900024",
+    "descripcion":"+VUSE GO CREAMY PEACH700p.1x10",
+    "cod_barras":8421881018021
+  },
+  {
+    "codigo":"Z040900025",
+    "descripcion":"+VUSE GO TROP.COCONUT700p.1x10",
+    "cod_barras":8421881018113
+  },
+  {
+    "codigo":"Z040900026",
+    "descripcion":"+VUSE GO DARK CHERRY 700p.1x10",
+    "cod_barras":8421881018236
+  },
+  {
+    "codigo":"Z040900027",
+    "descripcion":"+VUSE GO APPLE SOUR 700p.1x10",
+    "cod_barras":8421881018052
+  },
+  {
+    "codigo":"Z040900028",
+    "descripcion":"+VUSE GO BER.WATERM 0%700p1x10",
+    "cod_barras":8421881019233
+  },
+  {
+    "codigo":"Z040900029",
+    "descripcion":"+VUSE GO BLUEBERRY 0% 700f1x10",
+    "cod_barras":8421881019264
+  },
+  {
+    "codigo":"Z040900030",
+    "descripcion":"+VUSE GO STRAWB.KIWI 700pf1x10",
+    "cod_barras":8421881018007
+  },
+  {
+    "codigo":"Z040900100",
+    "descripcion":"+VUSE GO BLUE RASPERY 800p1x10",
+    "cod_barras":8421881015525
+  },
+  {
+    "codigo":"Z040900101",
+    "descripcion":"+VUSE GO BERRY BLEND 800pf1x10",
+    "cod_barras":8421881015617
+  },
+  {
+    "codigo":"Z040900102",
+    "descripcion":"+VUSE GO PEPPERMINT 800pf 1x10",
+    "cod_barras":8421881015730
+  },
+  {
+    "codigo":"Z040900103",
+    "descripcion":"+VUSE GO STRAMB.KIWI 800pf1x10",
+    "cod_barras":8421881015495
+  },
+  {
+    "codigo":"Z040900105",
+    "descripcion":"DISP.VUSE GO RELOAD 1000 B.WAR",
+    "cod_barras":8421881026248
+  },
+  {
+    "codigo":"Z040900106",
+    "descripcion":"DISP.VUSE GO RELOAD 1000 BLUBR",
+    "cod_barras":8421881026309
+  },
+  {
+    "codigo":"Z040900107",
+    "descripcion":"DISP.VUSE GO RELOAD 1000 STRAB",
+    "cod_barras":8421881026279
+  },
+  {
+    "codigo":"Z040900108",
+    "descripcion":"DISP.VUSE GO RELOAD1000 PEPPER",
+    "cod_barras":8421881030382
+  },
+  {
+    "codigo":"Z040900115",
+    "descripcion":"VUSE POD WATERMELON ICE 1UND.",
+    "cod_barras":8421881026484
+  },
+  {
+    "codigo":"Z040900116",
+    "descripcion":"VUSE POD STRAWBERRY ICE 1UND.",
+    "cod_barras":8421881026514
+  },
+  {
+    "codigo":"Z040900117",
+    "descripcion":"VUSE POD PEPPERMINT ICE 1UND.",
+    "cod_barras":8421881026576
+  },
+  {
+    "codigo":"Z040900118",
+    "descripcion":"VUSE POD BLUEBERRY ICE 1UND.",
+    "cod_barras":8421881026606
+  },
+  {
+    "codigo":"Z040900119",
+    "descripcion":"VUSE POD BERRY WATERMELON 1UND",
+    "cod_barras":8421881026637
+  },
+  {
+    "codigo":"Z040900120",
+    "descripcion":"VUSE POD STRAWBERRY KIWI 1UND",
+    "cod_barras":8421881026880
+  },
+  {
+    "codigo":"Z040900121",
+    "descripcion":"VUSE POD MANGO ICE 1UND",
+    "cod_barras":8421881026545
+  },
+  {
+    "codigo":"Z040900150",
+    "descripcion":"VUSE GO PEN 1000 BERYWATERM.20",
+    "cod_barras":8421881029355
+  },
+  {
+    "codigo":"Z040900151",
+    "descripcion":"VUSE GO PEN 1000 STRAWBERRY.20",
+    "cod_barras":8421881029263
+  },
+  {
+    "codigo":"Z040900152",
+    "descripcion":"VUSE GO PEN 1000 WATERMELON.20",
+    "cod_barras":8421881029294
+  },
+  {
+    "codigo":"Z040900153",
+    "descripcion":"VUSE GO PEN 1000 STRBRRYKIW.20",
+    "cod_barras":8421881029539
+  },
+  {
+    "codigo":"Z040900154",
+    "descripcion":"VUSE GO PEN 1000 APLE SOUR.20",
+    "cod_barras":8421881029591
+  },
+  {
+    "codigo":"Z040900155",
+    "descripcion":"VUSE GO PEN 1000 BERYWATERM 0%",
+    "cod_barras":8421881029775
+  },
+  {
+    "codigo":"Z040900156",
+    "descripcion":"VUSE GO PEN 1000 BLUEBER.ICE0%",
+    "cod_barras":8421881029805
+  },
+  {
+    "codigo":"Z040900157",
+    "descripcion":"VUSE GO PEN 1000 STWBRRYKIW 0%",
+    "cod_barras":8421881029928
+  },
+  {
+    "codigo":"Z040900158",
+    "descripcion":"VUSE GO PEN 1000 PEPPERMINT 0%",
+    "cod_barras":8421881029898
+  },
+  {
+    "codigo":"Z040900200",
+    "descripcion":"VUSE GO BOX 1000 PEPPERMINT 20",
+    "cod_barras":8421881028815
+  },
+  {
+    "codigo":"Z040900201",
+    "descripcion":"VUSE GO BOX 1000 STWBRRYKIW 20",
+    "cod_barras":8421881028877
+  },
+  {
+    "codigo":"Z040900202",
+    "descripcion":"VUSE GO BOX 1000 WATERMELON 20",
+    "cod_barras":8421881028907
+  },
+  {
+    "codigo":"Z040900203",
+    "descripcion":"VUSE GO BOX 1000 SPEARMINT 20",
+    "cod_barras":8421881028846
+  },
+  {
+    "codigo":"Z040900204",
+    "descripcion":"VUSE GO BOX 1000 BERRY FIZZ 20",
+    "cod_barras":8421881028969
+  },
+  {
+    "codigo":"Z040900205",
+    "descripcion":"VUSE GO BOX 1000 WATERMELON 0%",
+    "cod_barras":8421881028990
+  },
+  {
+    "codigo":"Z040900901",
+    "descripcion":"DISPOSITIVO GLO AIR TURQUESA 1",
+    "cod_barras":8027463008512
+  },
+  {
+    "codigo":"Z040900902",
+    "descripcion":"DISPOSITIVO GLO AIR DORADO 1Un",
+    "cod_barras":8027463008536
+  },
+  {
+    "codigo":"Z040900903",
+    "descripcion":"DISPOSITIVO GLO AIR BLACK 1Un",
+    "cod_barras":8027463008499
+  },
+  {
+    "codigo":"Z040900904",
+    "descripcion":"DISPOSITIVO GLO BLUE 1Un",
+    "cod_barras":8027463008574
+  },
+  {
+    "codigo":"Z040900905",
+    "descripcion":"DISPOSITIVO GLO ROSA 1Un",
+    "cod_barras":8027463008802
+  },
+  {
+    "codigo":"Z040900908",
+    "descripcion":"DISP.GLO X3 PRO NEGRO RUBI",
+    "cod_barras":5208049012649
+  },
+  {
+    "codigo":"Z040900909",
+    "descripcion":"DISP.GLO X3 PRO VIOLETA",
+    "cod_barras":5208049012700
+  },
+  {
+    "codigo":"Z040900910",
+    "descripcion":"DISP.GLO X3 PRO AZUL",
+    "cod_barras":5208049012670
+  },
+  {
+    "codigo":"Z040900911",
+    "descripcion":"DISP.GLO X3 PRO TURQUESA",
+    "cod_barras":5208049012687
+  },
+  {
+    "codigo":"Z040900930",
+    "descripcion":"VELO SPIFFY SPEARMINT 6mg.1x5",
+    "cod_barras":8421881024442
+  },
+  {
+    "codigo":"Z040900931",
+    "descripcion":"VELO BRIGHT SPEARMINT 10mg.1x5",
+    "cod_barras":8421881024534
+  },
+  {
+    "codigo":"Z040900932",
+    "descripcion":"VELO GROOVY GRAPE 10mg.1x5",
+    "cod_barras":8421881024565
+  },
+  {
+    "codigo":"Z040900933",
+    "descripcion":"VELO LIME FLAME 8mg. 1x5",
+    "cod_barras":8421881024626
+  },
+  {
+    "codigo":"Z040900934",
+    "descripcion":"VELO FREZING PEPPER.10,9mg.1x5",
+    "cod_barras":8421881024657
+  },
+  {
+    "codigo":"Z040900935",
+    "descripcion":"VELO CRISPY PEPPERMI.10mg. 1x5",
+    "cod_barras":8421881024596
+  },
+  {
+    "codigo":"Z040900936",
+    "descripcion":"VELO STRAWBERRY ICE 10mg. 1x5",
+    "cod_barras":8421881025487
+  },
+  {
+    "codigo":"Z040900937",
+    "descripcion":"VELO FREZING PEPPER.14mg.1x5",
+    "cod_barras":8421881031174
+  },
+  {
+    "codigo":"Z042000001",
+    "descripcion":"CIG.1,69 PREM.BLEN.NEW ST10X20",
+    "cod_barras":8435233369532
+  },
+  {
+    "codigo":"Z042000002",
+    "descripcion":"CIG.1,69 PREM.BLUE NEW ST1X10",
+    "cod_barras":8435233323411
+  },
+  {
+    "codigo":"Z042000050",
+    "descripcion":"PUROS PALMERITO TUBO 1X50Und.",
+    "cod_barras":8435233365428
+  },
+  {
+    "codigo":"Z042000052",
+    "descripcion":"PUROS PALMERITO TUBO 1X4Und.",
+    "cod_barras":8435233347837
+  },
+  {
+    "codigo":"Z042000055",
+    "descripcion":"BREVAS PALMERITO caja 1X10Und.",
+    "cod_barras":8435233365541
+  },
+  {
+    "codigo":"Z042000056",
+    "descripcion":"BREVAS PALMERITO caja 1X5Und.",
+    "cod_barras":8435233365510
+  },
+  {
+    "codigo":"Z042000060",
+    "descripcion":"MINITOS PALMERITO mazo 1X10 Ud",
+    "cod_barras":8435233349367
+  },
+  {
+    "codigo":"Z042000061",
+    "descripcion":"MINITOS PALMERITO caja 1X10 Ud",
+    "cod_barras":8435233365466
+  },
+  {
+    "codigo":"Z042000065",
+    "descripcion":"SEÑORITAS PALMERITO mazo 1X10u",
+    "cod_barras":8435233349428
+  },
+  {
+    "codigo":"Z042000066",
+    "descripcion":"SEÑORITAS PALMERITO mazo 1X25u",
+    "cod_barras":8435233349435
+  },
+  {
+    "codigo":"Z042000068",
+    "descripcion":"SEÑORITAS PALMERITO caja 1X10u",
+    "cod_barras":8435233365503
+  },
+  {
+    "codigo":"Z042000070",
+    "descripcion":"PETITOS PALMERITO mazo 1X10 Ud",
+    "cod_barras":8435233349398
+  },
+  {
+    "codigo":"Z042000073",
+    "descripcion":"PETITOS PALMERITO caja 1X10 Ud",
+    "cod_barras":8435233365459
+  },
+  {
+    "codigo":"Z043100004",
+    "descripcion":"PICADURA MANITOU GREEN 5x30Grs",
+    "cod_barras":4006396012777
+  },
+  {
+    "codigo":"Z043100005",
+    "descripcion":"PICADURA MANITOU GOLD 5x30Grs.",
+    "cod_barras":4006396154125
+  },
+  {
+    "codigo":"Z045000001",
+    "descripcion":"+VAPER.DESE.COOLPLAY SABORE.10",
+    "cod_barras":6972461601949
+  },
+  {
+    "codigo":"Z045000010",
+    "descripcion":"+VAPEYOU FRESH BREEZE 600 1X10",
+    "cod_barras":8435233385952
+  },
+  {
+    "codigo":"Z045000011",
+    "descripcion":"+VAPEYOU RASPBRRY 600 1X10U",
+    "cod_barras":8435233386010
+  },
+  {
+    "codigo":"Z045000012",
+    "descripcion":"+VAPEYOU COLD MANGO 600 1X10U",
+    "cod_barras":8435233385815
+  },
+  {
+    "codigo":"Z045000013",
+    "descripcion":"+VAPEYOU COLD PEACH 600 1X10U",
+    "cod_barras":8435233385938
+  },
+  {
+    "codigo":"Z045000014",
+    "descripcion":"+VAPEYOU GRAPE 600  1X10U",
+    "cod_barras":8435233385990
+  },
+  {
+    "codigo":"Z045000015",
+    "descripcion":"+VAPEYOU BANANA 600  1X10U",
+    "cod_barras":8435233385884
+  },
+  {
+    "codigo":"Z045000020",
+    "descripcion":"+VAPEYOU BLUBRRY 600 S\/N.1X10U",
+    "cod_barras":8435233389738
+  },
+  {
+    "codigo":"Z045000021",
+    "descripcion":"+VAPEYOU WTRMELO 600 S\/N.1X10U",
+    "cod_barras":8435233389639
+  },
+  {
+    "codigo":"Z045000022",
+    "descripcion":"+VAPEYOU GRAPE 600 S\/N 1X10U",
+    "cod_barras":8435233389769
+  },
+  {
+    "codigo":"Z046000002",
+    "descripcion":"PAPEL SMOK.DELUXE+FILTRO 1x24",
+    "cod_barras":8414775013011
+  },
+  {
+    "codigo":"Z046000005",
+    "descripcion":"SMOKING RED KING SIZE+FILT1X24",
+    "cod_barras":8414775016388
+  },
+  {
+    "codigo":"Z046000020",
+    "descripcion":"SMOKING FILTERS 6X15mm 30x180U",
+    "cod_barras":8414775016012
+  },
+  {
+    "codigo":"Z046000021",
+    "descripcion":"SMOKING FILTERS 6X22mm 30x120U",
+    "cod_barras":8414775015534
+  },
+  {
+    "codigo":"Z046000022",
+    "descripcion":"SMOK.FILT.BROWN 6X15mm 10x120U",
+    "cod_barras":8414775016647
+  },
+  {
+    "codigo":"Z046000100",
+    "descripcion":"MECHERO CLIPER ET 48 Udes.",
+    "cod_barras":8412765412745
+  }
 ]
 # ------------ Lista de tiendas ------------
 tiendas = [
@@ -471,6 +1545,33 @@ def get_db_connection():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
+
+def get_productos_de_tienda_y_fecha(tienda, fecha):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    if tienda and fecha:
+        cursor.execute(
+            "SELECT * FROM conteos_fisicos WHERE tienda=? AND DATE(fecha)=?",
+            (tienda, fecha)
+        )
+    elif tienda:
+        cursor.execute(
+            "SELECT * FROM conteos_fisicos WHERE tienda=?",
+            (tienda,)
+        )
+    elif fecha:
+        cursor.execute(
+            "SELECT * FROM conteos_fisicos WHERE DATE(fecha)=?",
+            (fecha,)
+        )
+    else:
+        cursor.execute(
+            "SELECT * FROM conteos_fisicos"
+        )
+    resultados = cursor.fetchall()
+    conn.close()
+    return resultados
+
 def productos_sql_a_dict(productos_sql):
     return [
         {
@@ -488,7 +1589,18 @@ def inventario():
     conn = get_db_connection()
     productos_sql = conn.execute('SELECT * FROM productos').fetchall()
     conn.close()
-    return render_template('inventario.html', productos=productos_sql)
+    return render_template(
+        'inventario.html',
+        productos=productos_sql
+    )
+
+    return render_template(
+        'inventario.html',
+        productos=productos_sql,
+        tiendas=tiendas,
+        tienda_seleccionada=tienda,
+        fecha_seleccionada=fecha
+    )
 
 @app.route('/agregar_producto', methods=('GET', 'POST'))
 @login_requerido
@@ -498,34 +1610,25 @@ def agregar_producto():
         codigo = request.form['codigo']
         descripcion = request.form['descripcion']
         cod_barras = request.form['cod_barras']
-        tienda = request.form['tienda']
-
         conn = get_db_connection()
-        # Comprueba si ya existe el código en la misma tienda
         existe = conn.execute(
-            "SELECT * FROM productos WHERE codigo = ? AND tienda = ?",
-            (codigo, tienda)
+            "SELECT * FROM productos WHERE codigo = ?",
+            (codigo,)
         ).fetchone()
         if existe:
-            mensaje = "¡Ya existe un producto con ese código en esa tienda!"
+            mensaje = "¡Ya existe un producto con ese código!"
             conn.close()
-            return render_template('agregar_producto.html', mensaje=mensaje, tiendas=tiendas)
+            return render_template('agregar_producto.html', mensaje=mensaje)
         else:
-            # Si tu tabla 'productos' NO tiene el campo 'stock':
             conn.execute(
-                'INSERT INTO productos (codigo, descripcion, cod_barras, tienda) VALUES (?, ?, ?, ?)',
-                (codigo, descripcion, cod_barras, tienda)
+                'INSERT INTO productos (codigo, descripcion, cod_barras) VALUES (?, ?, ?)',
+                (codigo, descripcion, cod_barras)
             )
-            # Si tu tabla 'productos' SÍ tiene el campo 'stock' y NO es NOT NULL, puedes poner 0 o NULL:
-            # conn.execute(
-            #     'INSERT INTO productos (codigo, descripcion, cod_barras, stock, tienda) VALUES (?, ?, ?, ?, ?)',
-            #     (codigo, descripcion, cod_barras, 0, tienda)
-            # )
             conn.commit()
             conn.close()
             return redirect(url_for('inventario'))
 
-    return render_template('agregar_producto.html', mensaje=mensaje, tiendas=tiendas)
+    return render_template('agregar_producto.html', mensaje=mensaje)
 
 # ------------ App Exportar ------------
 
@@ -627,9 +1730,10 @@ def inventario_fisico():
             if cantidad_num > 0:
                 # Guarda en conteos normales (como antes)
                 conn.execute(
-                    'INSERT INTO conteos_fisicos (tienda, codigo, descripcion, cod_barras, stock_fisico, fecha) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)',
-                    (tienda, producto['codigo'], producto['descripcion'], producto['cod_barras'], cantidad_num)
+                'INSERT INTO conteos_fisicos (tienda, codigo, descripcion, cod_barras, stock_fisico, fecha, autor) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)',
+                 (tienda, producto['codigo'], producto['descripcion'], producto['cod_barras'], cantidad_num, autor)
                 )
+
                 productos_modificados += 1
                 # También guarda el producto para el histórico
                 inventario_actual.append({
@@ -667,17 +1771,31 @@ def inventario_fisico():
 def conteos_fisicos():
     conn = get_db_connection()
     tienda_seleccionada = request.args.get('tienda', '')
+    fecha_seleccionada = request.args.get('fecha', '')
+
+    query = 'SELECT * FROM conteos_fisicos'
+    params = []
+    filtros = []
+
     if tienda_seleccionada:
-        conteos = conn.execute(
-            'SELECT * FROM conteos_fisicos WHERE tienda = ? ORDER BY rowid DESC',
-            (tienda_seleccionada,)
-        ).fetchall()
-    else:
-        conteos = conn.execute(
-            'SELECT * FROM conteos_fisicos ORDER BY rowid DESC'
-        ).fetchall()
+        filtros.append('tienda = ?')
+        params.append(tienda_seleccionada)
+    if fecha_seleccionada:
+        filtros.append('DATE(fecha) = ?')
+        params.append(fecha_seleccionada)
+    if filtros:
+        query += ' WHERE ' + ' AND '.join(filtros)
+    query += ' ORDER BY rowid DESC'
+
+    conteos = conn.execute(query, params).fetchall()
     conn.close()
-    return render_template('conteos_fisicos.html', conteos=conteos, tiendas=tiendas, tienda_seleccionada=tienda_seleccionada)
+    return render_template(
+        'conteos_fisicos.html',
+        conteos=conteos,
+        tiendas=tiendas,
+        tienda_seleccionada=tienda_seleccionada,
+        fecha_seleccionada=fecha_seleccionada
+    )
 
 @app.route('/eliminar_todos_conteos', methods=['POST', 'GET'])
 @login_requerido

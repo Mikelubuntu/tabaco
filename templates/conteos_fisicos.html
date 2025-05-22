@@ -1,97 +1,94 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="container mt-4">
-    <h2>Conteos Físicos en Tienda Guardados <span style="font-size:0.7em;" class="text-muted">(Histórico completo)</span></h2>
-    <div class="mb-3">
-        <a href="{{ url_for('exportar_conteos_excel', tienda=tienda_seleccionada) }}" class="btn btn-success btn-sm mb-1">Descargar Excel</a>
-        <a href="{{ url_for('exportar_conteos_pdf', tienda=tienda_seleccionada) }}" class="btn btn-danger btn-sm mb-1">Descargar PDF</a>
+<div class="container fade-in">
+    <div class="card shadow-sm p-4 glass-card mb-4">
+        <h3 class="mb-3 text-center"><i class="bi bi-list-ul"></i> Conteos en Tienda</h3>
+        <form method="get" class="row g-3 mb-3">
+    <div class="col-md-4">
+        <label for="tienda" class="form-label">Filtrar por tienda:</label>
+        <select id="tienda" name="tienda" class="form-select" onchange="this.form.submit()">
+            <option value="">Todas</option>
+            {% for t in tiendas %}
+            <option value="{{ t }}" {% if tienda_seleccionada==t %}selected{% endif %}>{{ t }}</option>
+            {% endfor %}
+        </select>
     </div>
-    <p class="mb-3 text-muted">
-        Cada registro corresponde a un recuento físico realizado en tienda. <br>
-        Puedes filtrar por tienda, editar o eliminar conteos individuales, o borrar todos los históricos si lo deseas.
-    </p>
-    <form method="get" class="mb-3">
-        <div class="row g-2 align-items-end">
-            <div class="col-auto">
-                <label for="tienda" class="form-label mb-0">Filtrar por tienda:</label>
-            </div>
-            <div class="col-8 col-sm-auto">
-                <select name="tienda" id="tienda" class="form-select">
-                    <option value="">Todas</option>
-                    {% for tienda in tiendas %}
-                        <option value="{{ tienda }}" {% if tienda == tienda_seleccionada %}selected{% endif %}>{{ tienda }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-auto">
-                <button type="submit" class="btn btn-primary">Filtrar</button>
-            </div>
-        </div>
-    </form>
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Tienda</th>
-                    <th>Fecha / Hora</th>
-                    <th>COD. ARTÍCULO</th>
-                    <th>DESCRIPCIÓN</th>
-                    <th>COD. BARRAS</th>
-                    <th>Cantidad Física</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
+    <div class="col-md-4">
+        <label for="fecha" class="form-label">Filtrar por fecha:</label>
+        <input type="date" id="fecha" name="fecha" class="form-control" value="{{ fecha_seleccionada or '' }}" onchange="this.form.submit()">
+    </div>
+    <div class="col-md-4 text-end align-self-end">
+        <a href="{{ url_for('exportar_conteos_excel', tienda=tienda_seleccionada) }}" class="btn btn-info mb-1">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+        </a>
+        <a href="{{ url_for('exportar_conteos_pdf', tienda=tienda_seleccionada) }}" class="btn btn-danger mb-1">
+            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+        </a>
+        <a href="{{ url_for('eliminar_todos_conteos') }}" class="btn btn-warning mb-1" onclick="return confirm('¿Seguro que quieres eliminar todos los conteos?');">
+            <i class="bi bi-trash"></i> Eliminar Todos
+        </a>
+    </div>
+</form>
+        <div class="table-responsive">
+            <table class="table table-striped align-middle table-hover shadow-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Tienda</th>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Cód. Barras</th>
+                        <th>Cantidad Física</th>
+                        <th>Fecha</th>
+                        <th>Usuario</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
                 {% for c in conteos %}
-                <tr>
-                    <td>{{ c['tienda'] }}</td>
-                    <td>
-                        {{ c['fecha'][:19].replace('T',' ') if c['fecha'] else '-' }}
-                    </td>
-                    <td>{{ c['codigo'] }}</td>
-                    <td>{{ c['descripcion'] }}</td>
-                    <td>{{ c['cod_barras'] }}</td>
-                    <td>{{ c['stock_fisico'] }}</td>
-                    <td>
-                        <!-- Editar -->
-                        <a href="{{ url_for('editar_conteo', id=c['id']) }}" class="btn btn-warning btn-sm mb-1">Editar</a>
-                        <!-- Eliminar individual -->
-                        <form action="{{ url_for('eliminar_conteo', id=c['id']) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm mb-1" onclick="return confirm('¿Seguro que deseas eliminar este conteo?');">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>{{ c.id }}</td>
+                        <td>{{ c.tienda }}</td>
+                        <td>{{ c.codigo }}</td>
+                        <td>{{ c.descripcion }}</td>
+                        <td>{{ c.cod_barras }}</td>
+                        <td>{{ c.stock_fisico }}</td>
+                        <td>{{ c.fecha }}</td>
+                        <td>{{ c.autor or '-' }}</td>
+                        <td>
+                        <a href="{{ url_for('editar_conteo', id=c.id) }}" class="btn btn-primary btn-sm" title="Editar"><i class="bi bi-pencil"></i></a>
+                        <a href="{{ url_for('eliminar_conteo', id=c.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que quieres eliminar este conteo?');" title="Eliminar"><i class="bi bi-trash"></i></a>
+                        </td>
+
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No hay conteos registrados.</td>
+                    </tr>
                 {% endfor %}
-                {% if conteos|length == 0 %}
-                <tr>
-                    <td colspan="7" class="text-center">No hay registros para mostrar.</td>
-                </tr>
-                {% endif %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
-    <!-- Botón para borrar todos los conteos físicos -->
-    <form method="POST" action="{{ url_for('eliminar_todos_conteos') }}" onsubmit="return confirm('¿Seguro que deseas borrar todos los conteos?');">
-        <button type="submit" class="btn btn-danger mt-2 w-100 w-md-auto">Borrar todos los conteos</button>
-    </form>
 </div>
 <style>
-@media (max-width: 600px) {
-    .container.mt-4 {
-        padding-left: 4px;
-        padding-right: 4px;
+    .glass-card {
+        background: rgba(255,255,255,0.89);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px 0 rgba(31,38,135,0.14);
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
     }
-    .table-responsive {
-        font-size: 0.93rem;
+    .fade-in {
+        opacity: 0;
+        animation: fadeIn 0.7s forwards;
     }
-    .btn, .form-select, .form-control {
-        font-size: 0.96rem !important;
+    @keyframes fadeIn {
+        to { opacity: 1; }
     }
-    h2 {
-        font-size: 1.22rem;
-        margin-bottom: 1rem !important;
-        text-align: center;
+    .table thead th {
+        background: rgba(245,245,255,0.97);
     }
-}
 </style>
 {% endblock %}
