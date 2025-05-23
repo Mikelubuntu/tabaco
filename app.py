@@ -1638,12 +1638,17 @@ def exportar_conteos_excel():
     tienda = request.args.get('tienda', '')
     conn = get_db_connection()
     if tienda:
-        df = pd.read_sql_query("SELECT * FROM conteos_fisicos WHERE tienda = ? ORDER BY fecha DESC", conn, params=(tienda,))
+        df = pd.read_sql_query(
+            "SELECT * FROM conteos_fisicos WHERE (eliminado IS NULL OR eliminado = 0) AND tienda = ? ORDER BY fecha DESC",
+            conn, params=(tienda,)
+        )
     else:
-        df = pd.read_sql_query("SELECT * FROM conteos_fisicos ORDER BY fecha DESC", conn)
+        df = pd.read_sql_query(
+            "SELECT * FROM conteos_fisicos WHERE eliminado IS NULL OR eliminado = 0 ORDER BY fecha DESC",
+            conn
+        )
     conn.close()
-
-    # DEBUG: Imprime los nombres reales
+    
     print("Columnas reales:", df.columns.tolist())
 
     # Renombra y reordena las columnas
