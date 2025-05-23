@@ -23,19 +23,25 @@
                         <td>{{ h.tienda }}</td>
                         <td>{{ h.fecha }}</td>
                         <td>
-                            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="collapse" data-bs-target="#productos_{{ h.id }}">
-                                Ver productos ({{ h.productos|length }})
-                            </button>
-                            <div class="collapse mt-2" id="productos_{{ h.id }}">
-                                <ul class="list-group">
-                                    {% for p in h.productos %}
-                                    <li class="list-group-item">
-                                        <strong>{{ p.codigo }}</strong> | {{ p.descripcion }} | <span class="text-muted">{{ p.cod_barras }}</span> | Cantidad: <strong>{{ p.cantidad }}</strong>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
+                    <div class="d-flex flex-wrap gap-1">
+    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="collapse" data-bs-target="#productos_{{ h.id }}">
+            Ver productos ({{ h.productos|length }})
+        </button>
+             <a href="{{ url_for('descargar_historico_excel', historico_id=h.id) }}" class="btn btn-success btn-sm">
+                   <i class="bi bi-file-earmark-excel"></i> Descargar Excel
+                         </a>
                             </div>
-                        </td>
+                                 <div class="collapse mt-2" id="productos_{{ h.id }}">
+                       <ul class="list-group">
+ {% for p in h.productos %}
+                      <li class="list-group-item">
+                     <strong>{{ p.codigo }}</strong> | {{ p.descripcion }} | <span class="text-muted">{{ p.cod_barras }}</span> | Cantidad: <strong>{{ p.cantidad }}</strong>
+                     </li>
+            {% endfor %}
+                    </ul>
+                    </div>
+                    </td>
+
                     </tr>
                 {% else %}
                     <tr>

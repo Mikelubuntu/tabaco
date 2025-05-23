@@ -1993,6 +1993,59 @@ def inventario_historico():
         })
     return render_template('inventario_historico.html', historicos=historicos_lista)
 
+@app.route('/descargar_historico_excel/<int:historico_id>')
+@login_requerido
+def descargar_historico_excel(historico_id):
+    import json
+    import pandas as pd
+    from io import BytesIO
+    from flask import send_file
+
+    try:
+        conn = get_db_connection()
+        historico = conn.execute('SELECT * FROM inventario_historico WHERE id = ?', (historico_id,)).fetchone()
+        conn.close()
+        if not historico:
+            return "Histórico no encontrado", 404
+
+        try:
+            productos = json.loads(historico['productos_json'])
+        except Exception as e:
+            print("ERROR al cargar JSON:", e)
+            return f"Error al cargar los productos de este histórico: {e}", 500
+
+        data = []
+        for p in productos:
+            data.append({
+                'Código': p.get('codigo', ''),
+                'Descripción': p.get('descripcion', ''),
+                'Código de Barras': str(p.get('cod_barras', '')),  # Fuerza a texto
+                'Cantidad': p.get('cantidad', '')
+            })
+
+        df = pd.DataFrame(data)
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name='Inventario')
+            workbook = writer.book
+            worksheet = writer.sheets['Inventario']
+            # Busca columna de código de barras y ponla como texto
+            for idx, col in enumerate(df.columns):
+                if col.lower().startswith('código de barras'):
+                    text_fmt = workbook.add_format({'num_format': '@'})
+                    worksheet.set_column(idx, idx, 20, text_fmt)
+
+        output.seek(0)
+        return send_file(
+            output,
+            as_attachment=True,
+            download_name=f"historico_{historico_id}.xlsx",
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+    except Exception as e:
+        print("ERROR GENERAL EN DESCARGAR HISTORICO EXCEL:", e)
+        return f"Error interno: {e}", 500
+
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 5000))  # Railway te asigna el puerto por variable de entorno
