@@ -23,29 +23,31 @@
                         <td>{{ h.tienda }}</td>
                         <td>{{ h.fecha }}</td>
                         <td>
-                    <div class="d-flex flex-wrap gap-1">
-    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="collapse" data-bs-target="#productos_{{ h.id }}">
-            Ver productos ({{ h.productos|length }})
-        </button>
-             <a href="{{ url_for('descargar_historico_excel', historico_id=h.id) }}" class="btn btn-success btn-sm">
-                   <i class="bi bi-file-earmark-excel"></i> Descargar Excel
-                         </a>
+                            <div class="d-flex flex-wrap gap-1">
+                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="collapse" data-bs-target="#productos_{{ h.id }}">
+                                    Ver productos ({{ h.productos|length }})
+                                </button>
+                                <a href="{{ url_for('descargar_historico_excel', historico_id=h.id) }}" class="btn btn-success btn-sm">
+                                    <i class="bi bi-file-earmark-excel"></i> Descargar Excel
+                                </a>
                             </div>
-                                 <div class="collapse mt-2" id="productos_{{ h.id }}">
-                       <ul class="list-group">
- {% for p in h.productos %}
-                      <li class="list-group-item">
-                     <strong>{{ p.codigo }}</strong> | {{ p.descripcion }} | <span class="text-muted">{{ p.cod_barras }}</span> | Cantidad: <strong>{{ p.cantidad }}</strong>
-                     </li>
-            {% endfor %}
-                    </ul>
-                    </div>
-                    </td>
-
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">No hay históricos de inventario.</td>
+                            <div class="collapse mt-2" id="productos_{{ h.id }}">
+                                <ul class="list-group">
+                                    {% for p in h.productos %}
+                                      <li class="list-group-item">
+                                        {% if p.eliminado %}
+                                          <span style="text-decoration:line-through;">
+                                            <strong>{{ p.codigo }}</strong> | {{ p.descripcion }} | <span class="text-muted">{{ p.cod_barras }}</span> | Cantidad: <strong>{{ p.cantidad }}</strong>
+                                          </span>
+                                          <div class="text-danger small">Eliminado: {{ p.motivo_eliminacion }}</div>
+                                        {% else %}
+                                          <strong>{{ p.codigo }}</strong> | {{ p.descripcion }} | <span class="text-muted">{{ p.cod_barras }}</span> | Cantidad: <strong>{{ p.cantidad }}</strong>
+                                        {% endif %}
+                                      </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>

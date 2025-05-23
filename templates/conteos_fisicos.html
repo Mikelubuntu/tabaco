@@ -5,31 +5,28 @@
     <div class="card shadow-sm p-4 glass-card mb-4">
         <h3 class="mb-3 text-center"><i class="bi bi-list-ul"></i> Conteos en Tienda</h3>
         <form method="get" class="row g-3 mb-3">
-    <div class="col-md-4">
-        <label for="tienda" class="form-label">Filtrar por tienda:</label>
-        <select id="tienda" name="tienda" class="form-select" onchange="this.form.submit()">
-            <option value="">Todas</option>
-            {% for t in tiendas %}
-            <option value="{{ t }}" {% if tienda_seleccionada==t %}selected{% endif %}>{{ t }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-4">
-        <label for="fecha" class="form-label">Filtrar por fecha:</label>
-        <input type="date" id="fecha" name="fecha" class="form-control" value="{{ fecha_seleccionada or '' }}" onchange="this.form.submit()">
-    </div>
-    <div class="col-md-4 text-end align-self-end">
-        <a href="{{ url_for('exportar_conteos_excel', tienda=tienda_seleccionada) }}" class="btn btn-info mb-1">
-            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
-        </a>
-        <a href="{{ url_for('exportar_conteos_pdf', tienda=tienda_seleccionada) }}" class="btn btn-danger mb-1">
-            <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
-        </a>
-        <a href="{{ url_for('eliminar_todos_conteos') }}" class="btn btn-warning mb-1" onclick="return confirm('¿Seguro que quieres eliminar todos los conteos?');">
-            <i class="bi bi-trash"></i> Eliminar Todos
-        </a>
-    </div>
-</form>
+            <div class="col-md-4">
+                <label for="tienda" class="form-label">Filtrar por tienda:</label>
+                <select id="tienda" name="tienda" class="form-select" onchange="this.form.submit()">
+                    <option value="">Todas</option>
+                    {% for t in tiendas %}
+                    <option value="{{ t }}" {% if tienda_seleccionada==t %}selected{% endif %}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="fecha" class="form-label">Filtrar por fecha:</label>
+                <input type="date" id="fecha" name="fecha" class="form-control" value="{{ fecha_seleccionada or '' }}" onchange="this.form.submit()">
+            </div>
+            <div class="col-md-4 text-end align-self-end">
+                <a href="{{ url_for('exportar_conteos_excel', tienda=tienda_seleccionada) }}" class="btn btn-info mb-1">
+                    <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+                </a>
+                <a href="{{ url_for('exportar_conteos_pdf', tienda=tienda_seleccionada) }}" class="btn btn-danger mb-1">
+                    <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+                </a>
+            </div>
+        </form>
         <div class="table-responsive">
             <table class="table table-striped align-middle table-hover shadow-sm">
                 <thead class="table-light">
@@ -48,23 +45,75 @@
                 <tbody>
                 {% for c in conteos %}
                     <tr>
-                        <td>{{ c.id }}</td>
-                        <td>{{ c.tienda }}</td>
-                        <td>{{ c.codigo }}</td>
-                        <td>{{ c.descripcion }}</td>
-                        <td>{{ c.cod_barras }}</td>
-                        <td>{{ c.stock_fisico }}</td>
-                        <td>{{ c.fecha }}</td>
-                        <td>{{ c.autor or '-' }}</td>
                         <td>
-                        <a href="{{ url_for('editar_conteo', id=c.id) }}" class="btn btn-primary btn-sm" title="Editar"><i class="bi bi-pencil"></i></a>
-                        <a href="{{ url_for('eliminar_conteo', id=c.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que quieres eliminar este conteo?');" title="Eliminar"><i class="bi bi-trash"></i></a>
+                          {% if c.eliminado %}
+                            <span style="text-decoration:line-through;">{{ c.id }}</span>
+                          {% else %}
+                            {{ c.id }}
+                          {% endif %}
                         </td>
-
+                        <td>
+                          {% if c.eliminado %}
+                            <span style="text-decoration:line-through;">{{ c.tienda }}</span>
+                          {% else %}
+                            {{ c.tienda }}
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if c.eliminado %}
+                            <span style="text-decoration:line-through;">{{ c.codigo }}</span>
+                          {% else %}
+                            {{ c.codigo }}
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if c.eliminado %}
+                            <span style="text-decoration:line-through;">{{ c.descripcion }}</span>
+                            <div class="text-danger small">Eliminado: {{ c.motivo_eliminacion }}</div>
+                          {% else %}
+                            {{ c.descripcion }}
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if c.eliminado %}
+                            <span style="text-decoration:line-through;">{{ c.cod_barras }}</span>
+                          {% else %}
+                            {{ c.cod_barras }}
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if c.eliminado %}
+                            <span style="text-decoration:line-through;">{{ c.stock_fisico }}</span>
+                          {% else %}
+                            {{ c.stock_fisico }}
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if c.eliminado %}
+                            <span style="text-decoration:line-through;">{{ c.fecha }}</span>
+                          {% else %}
+                            {{ c.fecha }}
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if c.eliminado %}
+                            <span style="text-decoration:line-through;">{{ c.autor or '-' }}</span>
+                          {% else %}
+                            {{ c.autor or '-' }}
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if c.eliminado %}
+                            <span class="text-danger small" title="{{ c.motivo_eliminacion }}"><i class="bi bi-x-circle"></i> Eliminado</span>
+                          {% else %}
+                        {# <a href="{{ url_for('editar_conteo', id=c.id) }}" class="btn btn-primary btn-sm" title="Editar"><i class="bi bi-pencil"></i></a> #}
+                            <button type="button" class="btn btn-danger btn-sm btn-eliminar" data-id="{{ c.id }}"><i class="bi bi-trash"></i></button>
+                          {% endif %}
+                        </td>
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="8" class="text-center text-muted">No hay conteos registrados.</td>
+                        <td colspan="9" class="text-center text-muted">No hay conteos registrados.</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -72,6 +121,43 @@
         </div>
     </div>
 </div>
+
+<!-- Modal para motivo de eliminación -->
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="formEliminar" method="post" action="{{ url_for('eliminar_conteo') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalEliminarLabel">Motivo de eliminación</h5>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id_eliminar" id="idEliminar">
+          <div class="mb-3">
+            <label for="motivoEliminar" class="form-label">Motivo</label>
+            <input type="text" class="form-control" id="motivoEliminar" name="motivo_eliminacion" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Eliminar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll(".btn-eliminar").forEach(btn => {
+        btn.onclick = function() {
+            document.getElementById("idEliminar").value = this.dataset.id;
+            document.getElementById("motivoEliminar").value = '';
+            var modal = new bootstrap.Modal(document.getElementById('modalEliminar'));
+            modal.show();
+        }
+    });
+});
+</script>
 <style>
     .glass-card {
         background: rgba(255,255,255,0.89);

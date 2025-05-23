@@ -1797,19 +1797,6 @@ def conteos_fisicos():
         fecha_seleccionada=fecha_seleccionada
     )
 
-@app.route('/eliminar_todos_conteos', methods=['POST', 'GET'])
-@login_requerido
-def eliminar_todos_conteos():
-    conn = get_db_connection()
-    # Si quieres borrar solo de una tienda, usa algo como:
-    # tienda = request.args.get('tienda', '') o request.form['tienda']
-    # conn.execute('DELETE FROM conteos_fisicos WHERE tienda = ?', (tienda,))
-    # Si quieres borrar todos:
-    conn.execute('DELETE FROM conteos_fisicos')
-    conn.commit()
-    conn.close()
-    return redirect(url_for('conteos_fisicos'))
-
 @app.route('/editar_conteo/<int:id>', methods=['GET', 'POST'])
 @login_requerido
 def editar_conteo(id):
@@ -1824,11 +1811,13 @@ def editar_conteo(id):
     conn.close()
     return render_template('editar_conteo.html', conteo=conteo)  # <-- Aquí está bien
 
-@app.route('/eliminar_conteo/<int:id>', methods=['POST', 'GET'])
+@app.route('/eliminar_conteo', methods=['POST'])
 @login_requerido
-def eliminar_conteo(id):
+def eliminar_conteo():
+    id_eliminar = request.form['id_eliminar']
+    motivo = request.form['motivo_eliminacion']
     conn = get_db_connection()
-    conn.execute('DELETE FROM conteos_fisicos WHERE id = ?', (id,))
+    conn.execute('UPDATE conteos_fisicos SET eliminado=1, motivo_eliminacion=? WHERE id=?', (motivo, id_eliminar))
     conn.commit()
     conn.close()
     return redirect(url_for('conteos_fisicos'))
@@ -1975,15 +1964,24 @@ def inventario_historico():
     historicos = conn.execute(
         "SELECT * FROM inventario_historico ORDER BY fecha DESC"
     ).fetchall()
-    conn.close()
-
-    # Decodifica el JSON de productos para cada histórico
     historicos_lista = []
     for h in historicos:
         try:
             productos = json.loads(h['productos_json'])
         except Exception:
             productos = []
+        # Busca estado eliminado/motivo para cada producto:
+        for p in productos:
+            cf = conn.execute(
+                "SELECT eliminado, motivo_eliminacion FROM conteos_fisicos WHERE codigo = ? AND tienda = ? ORDER BY fecha DESC LIMIT 1",
+                (p['codigo'], h['tienda'])
+            ).fetchone()
+            if cf:
+                p['eliminado'] = cf['eliminado']
+                p['motivo_eliminacion'] = cf['motivo_eliminacion']
+            else:
+                p['eliminado'] = 0
+                p['motivo_eliminacion'] = None
         historicos_lista.append({
             "id": h['id'],
             "autor": h['autor'],
@@ -1991,6 +1989,7 @@ def inventario_historico():
             "fecha": h['fecha'],
             "productos": productos
         })
+    conn.close()
     return render_template('inventario_historico.html', historicos=historicos_lista)
 
 @app.route('/descargar_historico_excel/<int:historico_id>')

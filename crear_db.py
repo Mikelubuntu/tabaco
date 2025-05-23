@@ -1,25 +1,18 @@
 import sqlite3
 
 conn = sqlite3.connect('database.db')
-cursor = conn.cursor()
 
-# Elimina tablas si existen
-cursor.execute("DROP TABLE IF EXISTS productos")
-cursor.execute("DROP TABLE IF EXISTS conteos_fisicos")
-cursor.execute("DROP TABLE IF EXISTS inventario_historico")
-
-# Crea las tablas nuevas
-cursor.execute("""
-CREATE TABLE productos (
+conn.execute('''
+CREATE TABLE IF NOT EXISTS productos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     codigo TEXT NOT NULL,
     descripcion TEXT NOT NULL,
     cod_barras TEXT NOT NULL
 )
-""")
+''')
 
-cursor.execute("""
-CREATE TABLE conteos_fisicos (
+conn.execute('''
+CREATE TABLE IF NOT EXISTS conteos_fisicos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tienda TEXT NOT NULL,
     codigo TEXT NOT NULL,
@@ -27,19 +20,21 @@ CREATE TABLE conteos_fisicos (
     cod_barras TEXT NOT NULL,
     stock_fisico INTEGER,
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-    autor TEXT
+    autor TEXT,
+    eliminado INTEGER DEFAULT 0,
+    motivo_eliminacion TEXT
 )
-""")
+''')
 
-cursor.execute("""
-CREATE TABLE inventario_historico (
+conn.execute('''
+CREATE TABLE IF NOT EXISTS inventario_historico (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     autor TEXT NOT NULL,
     tienda TEXT NOT NULL,
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
     productos_json TEXT NOT NULL
 )
-""")
+''')
 
 conn.commit()
 conn.close()
