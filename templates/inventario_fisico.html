@@ -15,7 +15,7 @@
             {% if mensaje %}
                 <div class="alert alert-success text-center">{{ mensaje }}</div>
             {% endif %}
-            <form method="post">
+            <form method="post" autocomplete="off">
                 <div class="mb-3">
                     <label for="tienda" class="form-label">Selecciona la Tienda</label>
                     <select id="tienda" name="tienda" class="form-select" required>
@@ -27,11 +27,11 @@
 
                 <!-- Campo para escanear código de barras -->
                 <div class="mb-3">
-                    <input id="scanner" type="text" class="form-control" placeholder="Escanea un código de barras aquí..." autofocus autocomplete="off">
+                <input id="scanner" type="text" class="form-control borde-rojo" placeholder="Escanea un código de barras aquí..." autofocus autocomplete="off">
                 </div>
                 <div class="table-responsive mb-4" style="max-height:500px; overflow:auto;">
                     <div class="mb-3">
-                        <input id="buscador" type="text" class="form-control" placeholder="Buscar por Código, Descripción o Código de Barras...">
+                        <input id="buscador" type="text" class="form-control" placeholder="Buscar manualmente por Código, Descripción o Código de Barras...">
                     </div>
                     <table class="table table-striped align-middle table-hover glass-table shadow-sm">
                         <thead class="table-light">
@@ -187,6 +187,13 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 <style>
+
+.borde-rojo {
+    border: 2.5px solid #ff4d4f !important;  /* Rojo claro y vistoso */
+    box-shadow: 0 0 6px #ff4d4f60;
+    border-radius: 8px;
+}
+
     .glass-card {
         background: rgba(255,255,255,0.92);
         border-radius: 18px;
@@ -207,6 +214,12 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     @keyframes fadeIn {
         to { opacity: 1; }
+    }
+    #scanner:focus {
+    border: 2.5px solid #ff4d4f !important;   /* rojo */
+    box-shadow: 0 0 6px #ff4d4f60 !important; /* suave sombra roja */
+    border-radius: 8px;
+    outline: none !important;
     }
 </style>
 {% endblock %}
