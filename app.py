@@ -1726,6 +1726,8 @@ def inventario_fisico():
         productos_modificados = 0
         inventario_actual = []  # <--- Lista para guardar productos y cantidades de este inventario
         conn = get_db_connection()
+
+        # Guarda cantidades de los productos en el listado normal
         for producto in productos_unidos:
             cantidad = request.form.get(f"stock_{producto['codigo']}")
             try:
@@ -1733,20 +1735,42 @@ def inventario_fisico():
             except Exception:
                 cantidad_num = 0
             if cantidad_num > 0:
-                # Guarda en conteos normales (como antes)
                 conn.execute(
-                'INSERT INTO conteos_fisicos (tienda, codigo, descripcion, cod_barras, stock_fisico, fecha, autor) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)',
-                 (tienda, producto['codigo'], producto['descripcion'], producto['cod_barras'], cantidad_num, autor)
+                    'INSERT INTO conteos_fisicos (tienda, codigo, descripcion, cod_barras, stock_fisico, fecha, autor) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)',
+                    (tienda, producto['codigo'], producto['descripcion'], producto['cod_barras'], cantidad_num, autor)
                 )
-
                 productos_modificados += 1
-                # También guarda el producto para el histórico
                 inventario_actual.append({
                     "codigo": producto['codigo'],
                     "descripcion": producto['descripcion'],
                     "cod_barras": producto['cod_barras'],
                     "cantidad": cantidad_num
                 })
+
+        # ---- Guarda el producto escrito a mano si lo hay ----
+        manual_codigo = request.form.get("manual_codigo", "").strip()
+        manual_descripcion = request.form.get("manual_descripcion", "").strip()
+        manual_cod_barras = request.form.get("manual_cod_barras", "").strip()
+        manual_cantidad = request.form.get("manual_cantidad", "").strip()
+
+        if manual_codigo and manual_descripcion and manual_cantidad:
+            try:
+                cantidad_manual = int(manual_cantidad)
+            except Exception:
+                cantidad_manual = 0
+            if cantidad_manual > 0:
+                conn.execute(
+                    'INSERT INTO conteos_fisicos (tienda, codigo, descripcion, cod_barras, stock_fisico, fecha, autor) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)',
+                    (tienda, manual_codigo, manual_descripcion, manual_cod_barras, cantidad_manual, autor)
+                )
+                productos_modificados += 1
+                inventario_actual.append({
+                    "codigo": manual_codigo,
+                    "descripcion": manual_descripcion,
+                    "cod_barras": manual_cod_barras,
+                    "cantidad": cantidad_manual
+                })
+
         conn.commit()
 
         # ----------- GUARDADO DEL HISTÓRICO -----------
@@ -1840,6 +1864,39 @@ import os
 import io
 import pandas as pd
 from flask import render_template, request, send_file, session, url_for
+
+@app.route('/editar_producto/<int:id>', methods=['GET', 'POST'])
+@login_requerido
+def editar_producto(id):
+    conn = get_db_connection()
+    producto = conn.execute('SELECT * FROM productos WHERE id = ?', (id,)).fetchone()
+    if not producto:
+        conn.close()
+        return "Producto no encontrado", 404
+
+    if request.method == 'POST':
+        codigo = request.form['codigo']
+        descripcion = request.form['descripcion']
+        cod_barras = request.form['cod_barras']
+
+        # Validar que no exista otro producto con el mismo código
+        existe = conn.execute(
+            "SELECT * FROM productos WHERE codigo = ? AND id != ?", (codigo, id)
+        ).fetchone()
+        if existe:
+            conn.close()
+            mensaje = "¡Ya existe otro producto con ese código!"
+            return render_template('editar_producto.html', producto=producto, mensaje=mensaje)
+        else:
+            conn.execute(
+                'UPDATE productos SET codigo = ?, descripcion = ?, cod_barras = ? WHERE id = ?',
+                (codigo, descripcion, cod_barras, id)
+            )
+            conn.commit()
+            conn.close()
+            return redirect(url_for('inventario'))
+    conn.close()
+    return render_template('editar_producto.html', producto=producto)
 
 @app.route('/cruce_inventario', methods=['GET', 'POST'])
 @login_requerido
@@ -2050,8 +2107,27 @@ def descargar_historico_excel(historico_id):
         print("ERROR GENERAL EN DESCARGAR HISTORICO EXCEL:", e)
         return f"Error interno: {e}", 500
 
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))  # Railway te asigna el puerto por variable de entorno
-    app.run(host="0.0.0.0", port=port)
+def importar_productos_fijos():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    for prod in productos:
+        codigo = prod["codigo"]
+        descripcion = prod["descripcion"]
+        cod_barras = prod["cod_barras"]
+        # Comprueba si ya existe el producto por código
+        existe = cursor.execute("SELECT 1 FROM productos WHERE codigo = ?", (codigo,)).fetchone()
+        if not existe:
+            cursor.execute(
+                "INSERT INTO productos (codigo, descripcion, cod_barras) VALUES (?, ?, ?)",
+                (codigo, descripcion, cod_barras)
+            )
+            print(f"Producto añadido: {codigo} - {descripcion}")
+    conn.commit()
+    conn.close()
+    print("Importación terminada")
 
+if __name__ == "__main__":
+    # importar_productos_fijos()  # <--- COMENTADO: NO se ejecuta la importación al iniciar la app
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

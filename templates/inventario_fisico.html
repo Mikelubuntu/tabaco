@@ -10,6 +10,7 @@
                     <li><b>Cada vez que completes y guardes este formulario, se crea un nuevo recuento histórico</b> para cada producto contado en la tienda seleccionada.</li>
                     <li><b>No se borran conteos anteriores.</b></li>
                     <li><b>Puedes sumar productos rápidamente con el escáner de código de barras.</b></li>
+                    <li><b>También puedes añadir productos manualmente al final de la página.</b></li>
                 </ul>
             </div>
             {% if mensaje %}
@@ -56,6 +57,24 @@
                         </tbody>
                     </table>
                 </div>
+<!-- Campo para agregar producto inventariado a mano -->
+<hr>
+<h5 class="mt-4 mb-2">Agregar producto inventariado a mano</h5>
+<div class="row g-2 mb-3">
+    <div class="col-md-3">
+        <input type="text" class="form-control" name="manual_codigo" placeholder="Código manual">
+    </div>
+    <div class="col-md-4">
+        <input type="text" class="form-control" name="manual_descripcion" placeholder="Descripción manual">
+    </div>
+    <div class="col-md-3">
+        <input type="text" class="form-control" name="manual_cod_barras" placeholder="Cod. barras manual">
+    </div>
+    <div class="col-md-2">
+        <input type="number" min="1" class="form-control" name="manual_cantidad" placeholder="Cantidad">
+    </div>
+</div>
+
                 <div class="d-grid">
                     <button type="button" class="btn btn-primary"><i class="bi bi-save"></i> Guardar Inventario Físico</button>
                 </div>
