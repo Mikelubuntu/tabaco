@@ -116,6 +116,16 @@
             transform: scale(0.97);
             box-shadow: 0 2px 10px rgba(0,0,0,0.10);
         }
+        @media (max-width: 900px) {
+    .glass-card h1 { font-size: 1.35rem !important; }
+    .glass-card h4 { font-size: 1.05rem !important; }
+}
+@media (max-width: 700px) {
+    .glass-card h1 { font-size: 1.1rem !important; }
+    .glass-card h4 { font-size: 0.97rem !important; }
+    .glass-card .fw-bold, .glass-card .small { font-size: 0.97rem !important; }
+}
+
         /* === FIN ESTILO BOTONES GLASSMORPHISM === */
     </style>
 </head>
@@ -157,51 +167,53 @@
     <div class="container">
         {% if request.path == "/" %}
         <div class="row justify-content-center fade-in">
-            <div class="col-md-9 col-lg-8">
-                <div class="card shadow-sm border-0 mb-4 glass-card text-center p-4">
-                    <h1 class="mb-3" style="font-weight: bold;">
-                        <i class="bi bi-boxes"></i> ¡Bienvenido/a!
-                    </h1>
-                    <h4 class="mb-4" style="color:#31708f;">Casa Ricardo: Gestión de Tabacos</h4>
-                    <!-- Gráfico visual de flujo de secciones (informativo, no clicable) -->
-                    <div class="d-flex flex-column align-items-center mb-4 mt-3">
-                        <div class="d-flex align-items-center justify-content-center flex-wrap w-100">
-                            <!-- Inventario Físico -->
-                            <div class="mx-3 my-2 text-center">
-                                <div>
-                                    <i class="bi bi-box-seam" style="font-size:2.5rem;color:#0d6efd;"></i>
-                                    <div class="fw-bold mt-2">Inventario Físico</div>
-                                    <div class="small text-muted">Inventario en tienda</div>
-                                </div>
-                            </div>
-                            <div style="font-size:2.2rem; color:#888; margin: 0 10px;">&#8594;</div>
-                            <!-- Inventario -->
-                            <div class="mx-3 my-2 text-center">
-                                <div>
-                                    <i class="bi bi-archive" style="font-size:2.5rem;color:#198754;"></i>
-                                    <div class="fw-bold mt-2">Inventario</div>
-                                    <div class="small text-muted">Añade productos a la base de datos</div>
-                                </div>
-                            </div>
-                            <div style="font-size:2.2rem; color:#888; margin: 0 10px;">&#8594;</div>
-                            <!-- Conteos en Tienda -->
-                            <div class="mx-3 my-2 text-center">
-                                <div>
-                                    <i class="bi bi-list-ul" style="font-size:2.5rem;color:#fd7e14;"></i>
-                                    <div class="fw-bold mt-2">Conteos en Tienda</div>
-                                    <div class="small text-muted">Histórico y exportación</div>
-                                </div>
-                            </div>
-                            <!-- Cruce -->
-                            <div class="mx-3 my-2 text-center">
-                                <div>
-                                    <i class="bi bi-arrow-left-right" style="font-size:2.5rem;color:#20c997;"></i>
-                                    <div class="fw-bold mt-2">Cruce</div>
-                                    <div class="small text-muted">Comparador de inventarios</div>
-                                </div>
-                            </div>
-                        </div>
+    <div class="col-12 col-md-10 col-lg-8">
+        <div class="card shadow-sm border-0 mb-4 glass-card text-center p-4">
+            <h1 class="mb-3" style="font-weight: bold;">
+                <i class="bi bi-boxes"></i> ¡Bienvenido/a!
+            </h1>
+            <h4 class="mb-4" style="color:#31708f;">Casa Ricardo: Gestión de Tabacos</h4>
+            <!-- Gráfico visual de flujo de secciones (informativo, no clicable) -->
+            <div class="d-flex flex-column align-items-center mb-4 mt-3">
+                <div class="d-flex align-items-center justify-content-center flex-nowrap w-100 overflow-auto" style="gap:18px;">
+                    <!-- Inventario Físico -->
+                    <div class="text-center flex-shrink-0" style="min-width:120px;">
+                        <i class="bi bi-box-seam" style="font-size:2rem;color:#0d6efd;"></i>
+                        <div class="fw-bold mt-2" style="font-size:1.05rem;">Inventario Físico</div>
+                        <div class="small text-muted">Inventario en tienda</div>
                     </div>
+                    <div style="font-size:1.7rem; color:#888;" class="flex-shrink-0">&#8594;</div>
+                    <!-- Inventario -->
+                    <div class="text-center flex-shrink-0" style="min-width:120px;">
+                        <i class="bi bi-archive" style="font-size:2rem;color:#198754;"></i>
+                        <div class="fw-bold mt-2" style="font-size:1.05rem;">Inventario</div>
+                        <div class="small text-muted">Añade productos</div>
+                    </div>
+                    <div style="font-size:1.7rem; color:#888;" class="flex-shrink-0">&#8594;</div>
+                    <!-- Conteos en Tienda -->
+                    <div class="text-center flex-shrink-0" style="min-width:120px;">
+                        <i class="bi bi-list-ul" style="font-size:2rem;color:#fd7e14;"></i>
+                        <div class="fw-bold mt-2" style="font-size:1.05rem;">Conteos en Tienda</div>
+                        <div class="small text-muted">Histórico</div>
+                    </div>
+                    <div style="font-size:1.7rem; color:#888;" class="flex-shrink-0">&#8594;</div>
+                    <!-- Cruce -->
+                    <div class="text-center flex-shrink-0" style="min-width:120px;">
+                        <i class="bi bi-arrow-left-right" style="font-size:2rem;color:#20c997;"></i>
+                        <div class="fw-bold mt-2" style="font-size:1.05rem;">Cruce</div>
+                        <div class="small text-muted">Comparador</div>
+                    </div>
+                </div>
+            </div>
+            <p class="lead mb-2 mt-2">
+                Accede a cada sección usando el menú superior.<br>
+                <span class="text-muted small">Las áreas protegidas requieren contraseña de administrador.</span>
+            </p>
+            <hr class="my-4">
+            <div class="text-muted small">Desarrollado por Casa Ricardo S.A &copy; 2025</div>
+        </div>
+    </div>
+</div>
                     <p class="lead mb-2 mt-2">
                         Accede a cada sección usando el menú superior.<br>
                         <span class="text-muted small">Las áreas protegidas requieren contraseña de administrador.</span>
