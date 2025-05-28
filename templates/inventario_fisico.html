@@ -82,6 +82,7 @@ document.getElementById("btnCamScan").onclick = function() {
         (decodedText, decodedResult) => {
             // Mete el valor en el input y lanza el evento Enter (como el lector físico)
             document.getElementById("scanner").value = decodedText.trim();
+             beep();
             let event = new KeyboardEvent('keydown', {'key': 'Enter'});
             document.getElementById("scanner").dispatchEvent(event);
             // Cierra el lector
