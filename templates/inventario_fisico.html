@@ -25,11 +25,62 @@
                         {% endfor %}
                     </select>
                 </div>
+                <div class="mb-3">
+                 <div class="input-group">
+                    <input id="scanner" type="text" class="form-control borde-rojo" placeholder="Escanea un código de barras aquí..." autofocus autocomplete="off">
+                 <button class="btn btn-outline-primary" type="button" id="btnCamScan" title="Escanear con cámara">
+            <i class="bi bi-camera"></i>
+        </button>
+    </div>
+    <div id="qr-reader" style="width:100%; max-width: 360px; margin-top:10px; display:none;"></div>
+</div>
+<!-- Cargar la librería html5-qrcode desde CDN -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+let qrScanner;
+let qrReaderVisible = false;
+
+document.getElementById("btnCamScan").onclick = function() {
+    const qrDiv = document.getElementById("qr-reader");
+    if (qrReaderVisible) {
+        // Si está abierto, ciérralo
+        if (qrScanner) qrScanner.stop().then(() => {
+            qrDiv.style.display = "none";
+            qrDiv.innerHTML = "";
+            qrReaderVisible = false;
+        });
+        return;
+    }
+    qrDiv.style.display = "block";
+    qrScanner = new Html5Qrcode("qr-reader");
+    qrScanner.start(
+        { facingMode: "environment" },
+        {
+            fps: 12,
+            qrbox: 220
+        },
+        (decodedText, decodedResult) => {
+            // Mete el valor en el input y lanza el evento Enter (como el lector físico)
+            document.getElementById("scanner").value = decodedText;
+            let event = new KeyboardEvent('keydown', {'key': 'Enter'});
+            document.getElementById("scanner").dispatchEvent(event);
+            // Cierra el lector
+            qrScanner.stop().then(() => {
+                qrDiv.style.display = "none";
+                qrDiv.innerHTML = "";
+                qrReaderVisible = false;
+            });
+        },
+        (errorMessage) => {
+            // No hace falta mostrar error por cada frame, puede ser molesto.
+        }
+    );
+    qrReaderVisible = true;
+};
+</script>
 
                 <!-- Campo para escanear código de barras -->
-                <div class="mb-3">
-                <input id="scanner" type="text" class="form-control borde-rojo" placeholder="Escanea un código de barras aquí..." autofocus autocomplete="off">
-                </div>
+                
                 <div class="table-responsive mb-4" style="max-height:500px; overflow:auto;">
                     <div class="mb-3">
                         <input id="buscador" type="text" class="form-control" placeholder="Buscar manualmente por Código, Descripción o Código de Barras...">
