@@ -26,15 +26,81 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <div class="input-group">
-                        <input id="scanner" type="text" class="form-control borde-rojo" placeholder="Escanea un código de barras aquí..." autofocus autocomplete="off">
-                        <button class="btn btn-outline-primary" type="button" id="btnCamScan" title="Escanear con cámara">
-                            <i class="bi bi-camera"></i>
-                        </button>
-                    </div>
-                    <div id="qr-reader" style="width:100%; max-width: 360px; margin-top:10px; display:none;"></div>
-                </div>
+                 <div class="input-group">
+                    <input id="scanner" type="text" class="form-control borde-rojo" placeholder="Escanea un código de barras aquí..." autofocus autocomplete="off">
+                 <button class="btn btn-outline-primary" type="button" id="btnCamScan" title="Escanear con cámara">
+            <i class="bi bi-camera"></i>
+        </button>
+    </div>
+    <div id="qr-reader" style="width:100%; max-width: 360px; margin-top:10px; display:none;"></div>
+</div>
+<!-- Cargar la librería html5-qrcode desde CDN -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+function beep(frequency = 800, duration = 120, volume = 0.25) {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.value = frequency;
+        gain.gain.value = volume;
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+        oscillator.start();
+        setTimeout(() => {
+            oscillator.stop();
+            ctx.close();
+        }, duration);
+    } catch (e) {
+        // No beep? No hay problema
+    }
+}
 
+let qrScanner;
+let qrReaderVisible = false;
+
+document.getElementById("btnCamScan").onclick = function() {
+    const qrDiv = document.getElementById("qr-reader");
+    if (qrReaderVisible) {
+        // Si está abierto, ciérralo
+        if (qrScanner) qrScanner.stop().then(() => {
+            qrDiv.style.display = "none";
+            qrDiv.innerHTML = "";
+            qrReaderVisible = false;
+        });
+        return;
+    }
+    qrDiv.style.display = "block";
+    qrScanner = new Html5Qrcode("qr-reader");
+    qrScanner.start(
+        { facingMode: "environment" },
+        {
+            fps: 12,
+            qrbox: 220
+        },
+        (decodedText, decodedResult) => {
+            // Mete el valor en el input y lanza el evento Enter (como el lector físico)
+            document.getElementById("scanner").value = decodedText.trim();
+            let event = new KeyboardEvent('keydown', {'key': 'Enter'});
+            document.getElementById("scanner").dispatchEvent(event);
+            // Cierra el lector
+            qrScanner.stop().then(() => {
+                qrDiv.style.display = "none";
+                qrDiv.innerHTML = "";
+                qrReaderVisible = false;
+            });
+        },
+        (errorMessage) => {
+            // No hace falta mostrar error por cada frame, puede ser molesto.
+        }
+    );
+    qrReaderVisible = true;
+};
+</script>
+
+                <!-- Campo para escanear código de barras -->
+                
                 <div class="table-responsive mb-4" style="max-height:500px; overflow:auto;">
                     <div class="mb-3">
                         <input id="buscador" type="text" class="form-control" placeholder="Buscar manualmente por Código, Descripción o Código de Barras...">
@@ -50,35 +116,35 @@
                         </thead>
                         <tbody>
                         {% for p in productos %}
-                            <tr data-codbarras="{{ p['cod_barras']|trim }}">
+                            <tr data-codbarras="{{ p['cod_barras'] }}">
                                 <td>{{ p['codigo'] }}</td>
                                 <td>{{ p['descripcion'] }}</td>
                                 <td>{{ p['cod_barras'] }}</td>
                                 <td>
-                                    <input type="number" min="0" class="form-control" name="stock_{{ p['codigo'] }}" placeholder="Cantidad" autocomplete="off" inputmode="numeric">
+                                    <input type="number" min="0" class="form-control" name="stock_{{ p['codigo'] }}" placeholder="Cantidad">
                                 </td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
-
-                <hr>
-                <h5 class="mt-4 mb-2">Agregar producto inventariado a mano</h5>
-                <div class="row g-2 mb-3">
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" name="manual_codigo" placeholder="Código manual">
-                    </div>
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" name="manual_descripcion" placeholder="Descripción manual">
-                    </div>
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" name="manual_cod_barras" placeholder="Cod. barras manual">
-                    </div>
-                    <div class="col-md-2">
-                        <input type="number" min="1" class="form-control" name="manual_cantidad" placeholder="Cantidad" autocomplete="off" inputmode="numeric">
-                    </div>
-                </div>
+<!-- Campo para agregar producto inventariado a mano -->
+<hr>
+<h5 class="mt-4 mb-2">Agregar producto inventariado a mano</h5>
+<div class="row g-2 mb-3">
+    <div class="col-md-3">
+        <input type="text" class="form-control" name="manual_codigo" placeholder="Código manual">
+    </div>
+    <div class="col-md-4">
+        <input type="text" class="form-control" name="manual_descripcion" placeholder="Descripción manual">
+    </div>
+    <div class="col-md-3">
+        <input type="text" class="form-control" name="manual_cod_barras" placeholder="Cod. barras manual">
+    </div>
+    <div class="col-md-2">
+        <input type="number" min="1" class="form-control" name="manual_cantidad" placeholder="Cantidad">
+    </div>
+</div>
 
                 <div class="d-grid">
                     <button type="button" class="btn btn-primary"><i class="bi bi-save"></i> Guardar Inventario Físico</button>
@@ -121,54 +187,7 @@
     </div>
 </div>
 
-<!-- Librería para QR/cámara -->
-<script src="https://unpkg.com/html5-qrcode"></script>
-
 <script>
-function beep(frequency = 800, duration = 120, volume = 0.25) {
-    try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = ctx.createOscillator();
-        const gain = ctx.createGain();
-        oscillator.type = "sine";
-        oscillator.frequency.value = frequency;
-        gain.gain.value = volume;
-        oscillator.connect(gain);
-        gain.connect(ctx.destination);
-        oscillator.start();
-        setTimeout(() => {
-            oscillator.stop();
-            ctx.close();
-        }, duration);
-    } catch (e) {
-        // Si el beep falla, no pasa nada
-    }
-}
-
-function sumarProductoPorCodigo(code) {
-    code = (code || "").trim();
-    let found = false;
-    document.querySelectorAll("table tbody tr").forEach(function(row) {
-        let cod_barras_row = (row.getAttribute("data-codbarras") || "").trim();
-        if (cod_barras_row === code) {
-            const inputCantidad = row.querySelector("input[type='number']");
-            let actual = parseInt(inputCantidad.value) || 0;
-            inputCantidad.value = actual + 1;
-            showScanToast();
-            beep();
-            inputCantidad.classList.add("table-success");
-            setTimeout(() => inputCantidad.classList.remove("table-success"), 600);
-            found = true;
-            row.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-    });
-    if (!found) {
-        const scannerInput = document.getElementById("scanner");
-        scannerInput.classList.add("is-invalid");
-        setTimeout(() => scannerInput.classList.remove("is-invalid"), 900);
-    }
-}
-
 document.addEventListener("DOMContentLoaded", function() {
     // Buscador
     const input = document.getElementById("buscador");
@@ -193,14 +212,35 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Escaneo por input físico o teclado
+    // Nuevo: Escaneo con aviso
     const scannerInput = document.getElementById("scanner");
     scannerInput.addEventListener("keydown", function(e) {
         if (e.key === "Enter") {
             e.preventDefault();
             const code = scannerInput.value.trim();
             if (!code) return;
-            sumarProductoPorCodigo(code);
+            let found = false;
+            document.querySelectorAll("table tbody tr").forEach(function(row) {
+                if ((row.getAttribute("data-codbarras") || "").trim() === code) {
+                    const inputCantidad = row.querySelector("input[type='number']");
+                    let actual = parseInt(inputCantidad.value) || 0;
+                    inputCantidad.value = actual + 1;
+                    // Visual feedback
+                    showScanToast();
+                    beep();
+                    // Opcional: selecciona el campo para que sea visible
+                    inputCantidad.classList.add("table-success");
+                    setTimeout(() => inputCantidad.classList.remove("table-success"), 600);
+                    found = true;
+                    // Desplaza la tabla a la fila encontrada (UX)
+                    row.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+            });
+            if (!found) {
+                // Visual feedback si no se encuentra
+                scannerInput.classList.add("is-invalid");
+                setTimeout(() => scannerInput.classList.remove("is-invalid"), 900);
+            }
             scannerInput.value = "";
         }
     });
@@ -235,50 +275,11 @@ document.addEventListener("DOMContentLoaded", function() {
         inputAutor.value = nombre;
         form.submit();
     };
-
-    // ----------- Escaneo con Cámara (tablets/móviles/PC) -----------
-    let qrScanner;
-    let qrReaderVisible = false;
-    document.getElementById("btnCamScan").onclick = function() {
-        const qrDiv = document.getElementById("qr-reader");
-        if (qrReaderVisible) {
-            if (qrScanner) qrScanner.stop().then(() => {
-                qrDiv.style.display = "none";
-                qrDiv.innerHTML = "";
-                qrReaderVisible = false;
-            });
-            return;
-        }
-        qrDiv.style.display = "block";
-        qrScanner = new Html5Qrcode("qr-reader");
-        qrScanner.start(
-            { facingMode: "environment" },
-            {
-                fps: 12,
-                qrbox: 220
-            },
-            (decodedText, decodedResult) => {
-                const cleanText = (decodedText || "").trim();
-                document.getElementById("scanner").value = cleanText;
-                sumarProductoPorCodigo(cleanText);
-                qrScanner.stop().then(() => {
-                    qrDiv.style.display = "none";
-                    qrDiv.innerHTML = "";
-                    qrReaderVisible = false;
-                });
-            },
-            (errorMessage) => {
-                // Silencio en errores de escaneo por frame
-            }
-        );
-        qrReaderVisible = true;
-    };
 });
 </script>
-
 <style>
 .borde-rojo {
-    border: 2.5px solid #ff4d4f !important;
+    border: 2.5px solid #ff4d4f !important;  /* Rojo claro y vistoso */
     box-shadow: 0 0 6px #ff4d4f60;
     border-radius: 8px;
 }
@@ -304,8 +305,8 @@ document.addEventListener("DOMContentLoaded", function() {
     to { opacity: 1; }
 }
 #scanner:focus {
-    border: 2.5px solid #ff4d4f !important;
-    box-shadow: 0 0 6px #ff4d4f60 !important;
+    border: 2.5px solid #ff4d4f !important;   /* rojo */
+    box-shadow: 0 0 6px #ff4d4f60 !important; /* suave sombra roja */
     border-radius: 8px;
     outline: none !important;
 }
