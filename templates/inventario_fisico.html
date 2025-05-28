@@ -166,9 +166,8 @@ document.getElementById("btnCamScan").onclick = function() {
         </div>
     </div>
 </div>
-
 <script>
-    function beep(frequency = 800, duration = 120, volume = 0.25) {
+function beep(frequency = 800, duration = 120, volume = 0.25) {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = ctx.createOscillator();
@@ -184,9 +183,32 @@ document.getElementById("btnCamScan").onclick = function() {
             ctx.close();
         }, duration);
     } catch (e) {
-        // El beep es opcional, si falla no pasa nada
+        // Si el beep falla, no pasa nada
     }
 }
+
+function sumarProductoPorCodigo(code) {
+    let found = false;
+    document.querySelectorAll("table tbody tr").forEach(function(row) {
+        if (row.getAttribute("data-codbarras") === code) {
+            const inputCantidad = row.querySelector("input[type='number']");
+            let actual = parseInt(inputCantidad.value) || 0;
+            inputCantidad.value = actual + 1;
+            showScanToast();
+            beep();
+            inputCantidad.classList.add("table-success");
+            setTimeout(() => inputCantidad.classList.remove("table-success"), 600);
+            found = true;
+            row.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    });
+    if (!found) {
+        const scannerInput = document.getElementById("scanner");
+        scannerInput.classList.add("is-invalid");
+        setTimeout(() => scannerInput.classList.remove("is-invalid"), 900);
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     // Buscador
     const input = document.getElementById("buscador");
@@ -211,35 +233,14 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Nuevo: Escaneo con aviso
+    // Escaneo por input físico
     const scannerInput = document.getElementById("scanner");
     scannerInput.addEventListener("keydown", function(e) {
         if (e.key === "Enter") {
             e.preventDefault();
             const code = scannerInput.value.trim();
             if (!code) return;
-            let found = false;
-            document.querySelectorAll("table tbody tr").forEach(function(row) {
-                if (row.getAttribute("data-codbarras") === code) {
-                    const inputCantidad = row.querySelector("input[type='number']");
-                    let actual = parseInt(inputCantidad.value) || 0;
-                    inputCantidad.value = actual + 1;
-                    // Visual feedback
-                    showScanToast();
-                    beep();
-                    // Opcional: selecciona el campo para que sea visible
-                    inputCantidad.classList.add("table-success");
-                    setTimeout(() => inputCantidad.classList.remove("table-success"), 600);
-                    found = true;
-                    // Desplaza la tabla a la fila encontrada (UX)
-                    row.scrollIntoView({ behavior: "smooth", block: "center" });
-                }
-            });
-            if (!found) {
-                // Visual feedback si no se encuentra
-                scannerInput.classList.add("is-invalid");
-                setTimeout(() => scannerInput.classList.remove("is-invalid"), 900);
-            }
+            sumarProductoPorCodigo(code);
             scannerInput.value = "";
         }
     });
@@ -274,8 +275,46 @@ document.addEventListener("DOMContentLoaded", function() {
         inputAutor.value = nombre;
         form.submit();
     };
+
+    // ----------- Escaneo con Cámara -----------
+    let qrScanner;
+    let qrReaderVisible = false;
+    document.getElementById("btnCamScan").onclick = function() {
+        const qrDiv = document.getElementById("qr-reader");
+        if (qrReaderVisible) {
+            if (qrScanner) qrScanner.stop().then(() => {
+                qrDiv.style.display = "none";
+                qrDiv.innerHTML = "";
+                qrReaderVisible = false;
+            });
+            return;
+        }
+        qrDiv.style.display = "block";
+        qrScanner = new Html5Qrcode("qr-reader");
+        qrScanner.start(
+            { facingMode: "environment" },
+            {
+                fps: 12,
+                qrbox: 220
+            },
+            (decodedText, decodedResult) => {
+                document.getElementById("scanner").value = decodedText;
+                sumarProductoPorCodigo(decodedText); // <--- AQUÍ
+                qrScanner.stop().then(() => {
+                    qrDiv.style.display = "none";
+                    qrDiv.innerHTML = "";
+                    qrReaderVisible = false;
+                });
+            },
+            (errorMessage) => {
+                // Ignorar errores por frame
+            }
+        );
+        qrReaderVisible = true;
+    };
 });
 </script>
+
 <style>
 
 .borde-rojo {
