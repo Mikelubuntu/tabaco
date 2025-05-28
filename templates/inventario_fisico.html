@@ -168,6 +168,25 @@ document.getElementById("btnCamScan").onclick = function() {
 </div>
 
 <script>
+    function beep(frequency = 800, duration = 120, volume = 0.25) {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.value = frequency;
+        gain.gain.value = volume;
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+        oscillator.start();
+        setTimeout(() => {
+            oscillator.stop();
+            ctx.close();
+        }, duration);
+    } catch (e) {
+        // El beep es opcional, si falla no pasa nada
+    }
+}
 document.addEventListener("DOMContentLoaded", function() {
     // Buscador
     const input = document.getElementById("buscador");
@@ -207,6 +226,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     inputCantidad.value = actual + 1;
                     // Visual feedback
                     showScanToast();
+                    beep();
                     // Opcional: selecciona el campo para que sea visible
                     inputCantidad.classList.add("table-success");
                     setTimeout(() => inputCantidad.classList.remove("table-success"), 600);
