@@ -26,61 +26,15 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                 <div class="input-group">
-                    <input id="scanner" type="text" class="form-control borde-rojo" placeholder="Escanea un código de barras aquí..." autofocus autocomplete="off">
-                 <button class="btn btn-outline-primary" type="button" id="btnCamScan" title="Escanear con cámara">
-            <i class="bi bi-camera"></i>
-        </button>
-    </div>
-    <div id="qr-reader" style="width:100%; max-width: 360px; margin-top:10px; display:none;"></div>
-</div>
-<!-- Cargar la librería html5-qrcode desde CDN -->
-<script src="https://unpkg.com/html5-qrcode"></script>
-<script>
-let qrScanner;
-let qrReaderVisible = false;
+                    <div class="input-group">
+                        <input id="scanner" type="text" class="form-control borde-rojo" placeholder="Escanea un código de barras aquí..." autofocus autocomplete="off">
+                        <button class="btn btn-outline-primary" type="button" id="btnCamScan" title="Escanear con cámara">
+                            <i class="bi bi-camera"></i>
+                        </button>
+                    </div>
+                    <div id="qr-reader" style="width:100%; max-width: 360px; margin-top:10px; display:none;"></div>
+                </div>
 
-document.getElementById("btnCamScan").onclick = function() {
-    const qrDiv = document.getElementById("qr-reader");
-    if (qrReaderVisible) {
-        // Si está abierto, ciérralo
-        if (qrScanner) qrScanner.stop().then(() => {
-            qrDiv.style.display = "none";
-            qrDiv.innerHTML = "";
-            qrReaderVisible = false;
-        });
-        return;
-    }
-    qrDiv.style.display = "block";
-    qrScanner = new Html5Qrcode("qr-reader");
-    qrScanner.start(
-        { facingMode: "environment" },
-        {
-            fps: 12,
-            qrbox: 220
-        },
-        (decodedText, decodedResult) => {
-            // Mete el valor en el input y lanza el evento Enter (como el lector físico)
-            document.getElementById("scanner").value = decodedText;
-            let event = new KeyboardEvent('keydown', {'key': 'Enter'});
-            document.getElementById("scanner").dispatchEvent(event);
-            // Cierra el lector
-            qrScanner.stop().then(() => {
-                qrDiv.style.display = "none";
-                qrDiv.innerHTML = "";
-                qrReaderVisible = false;
-            });
-        },
-        (errorMessage) => {
-            // No hace falta mostrar error por cada frame, puede ser molesto.
-        }
-    );
-    qrReaderVisible = true;
-};
-</script>
-
-                <!-- Campo para escanear código de barras -->
-                
                 <div class="table-responsive mb-4" style="max-height:500px; overflow:auto;">
                     <div class="mb-3">
                         <input id="buscador" type="text" class="form-control" placeholder="Buscar manualmente por Código, Descripción o Código de Barras...">
@@ -96,35 +50,35 @@ document.getElementById("btnCamScan").onclick = function() {
                         </thead>
                         <tbody>
                         {% for p in productos %}
-                            <tr data-codbarras="{{ p['cod_barras'] }}">
+                            <tr data-codbarras="{{ p['cod_barras']|trim }}">
                                 <td>{{ p['codigo'] }}</td>
                                 <td>{{ p['descripcion'] }}</td>
                                 <td>{{ p['cod_barras'] }}</td>
                                 <td>
-                                    <input type="number" min="0" class="form-control" name="stock_{{ p['codigo'] }}" placeholder="Cantidad">
+                                    <input type="number" min="0" class="form-control" name="stock_{{ p['codigo'] }}" placeholder="Cantidad" autocomplete="off" inputmode="numeric">
                                 </td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
-<!-- Campo para agregar producto inventariado a mano -->
-<hr>
-<h5 class="mt-4 mb-2">Agregar producto inventariado a mano</h5>
-<div class="row g-2 mb-3">
-    <div class="col-md-3">
-        <input type="text" class="form-control" name="manual_codigo" placeholder="Código manual">
-    </div>
-    <div class="col-md-4">
-        <input type="text" class="form-control" name="manual_descripcion" placeholder="Descripción manual">
-    </div>
-    <div class="col-md-3">
-        <input type="text" class="form-control" name="manual_cod_barras" placeholder="Cod. barras manual">
-    </div>
-    <div class="col-md-2">
-        <input type="number" min="1" class="form-control" name="manual_cantidad" placeholder="Cantidad">
-    </div>
-</div>
+
+                <hr>
+                <h5 class="mt-4 mb-2">Agregar producto inventariado a mano</h5>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="manual_codigo" placeholder="Código manual">
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" name="manual_descripcion" placeholder="Descripción manual">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="manual_cod_barras" placeholder="Cod. barras manual">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" min="1" class="form-control" name="manual_cantidad" placeholder="Cantidad" autocomplete="off" inputmode="numeric">
+                    </div>
+                </div>
 
                 <div class="d-grid">
                     <button type="button" class="btn btn-primary"><i class="bi bi-save"></i> Guardar Inventario Físico</button>
@@ -166,6 +120,10 @@ document.getElementById("btnCamScan").onclick = function() {
         </div>
     </div>
 </div>
+
+<!-- Librería para QR/cámara -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+
 <script>
 function beep(frequency = 800, duration = 120, volume = 0.25) {
     try {
@@ -188,9 +146,11 @@ function beep(frequency = 800, duration = 120, volume = 0.25) {
 }
 
 function sumarProductoPorCodigo(code) {
+    code = (code || "").trim();
     let found = false;
     document.querySelectorAll("table tbody tr").forEach(function(row) {
-        if (row.getAttribute("data-codbarras") === code) {
+        let cod_barras_row = (row.getAttribute("data-codbarras") || "").trim();
+        if (cod_barras_row === code) {
             const inputCantidad = row.querySelector("input[type='number']");
             let actual = parseInt(inputCantidad.value) || 0;
             inputCantidad.value = actual + 1;
@@ -233,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Escaneo por input físico
+    // Escaneo por input físico o teclado
     const scannerInput = document.getElementById("scanner");
     scannerInput.addEventListener("keydown", function(e) {
         if (e.key === "Enter") {
@@ -276,7 +236,7 @@ document.addEventListener("DOMContentLoaded", function() {
         form.submit();
     };
 
-    // ----------- Escaneo con Cámara -----------
+    // ----------- Escaneo con Cámara (tablets/móviles/PC) -----------
     let qrScanner;
     let qrReaderVisible = false;
     document.getElementById("btnCamScan").onclick = function() {
@@ -298,8 +258,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 qrbox: 220
             },
             (decodedText, decodedResult) => {
-                document.getElementById("scanner").value = decodedText;
-                sumarProductoPorCodigo(decodedText); // <--- AQUÍ
+                const cleanText = (decodedText || "").trim();
+                document.getElementById("scanner").value = cleanText;
+                sumarProductoPorCodigo(cleanText);
                 qrScanner.stop().then(() => {
                     qrDiv.style.display = "none";
                     qrDiv.innerHTML = "";
@@ -307,7 +268,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
             },
             (errorMessage) => {
-                // Ignorar errores por frame
+                // Silencio en errores de escaneo por frame
             }
         );
         qrReaderVisible = true;
@@ -316,39 +277,37 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 <style>
-
 .borde-rojo {
-    border: 2.5px solid #ff4d4f !important;  /* Rojo claro y vistoso */
+    border: 2.5px solid #ff4d4f !important;
     box-shadow: 0 0 6px #ff4d4f60;
     border-radius: 8px;
 }
-
-    .glass-card {
-        background: rgba(255,255,255,0.92);
-        border-radius: 18px;
-        box-shadow: 0 8px 32px 0 rgba(31,38,135,0.14);
-        backdrop-filter: blur(7px);
-        -webkit-backdrop-filter: blur(7px);
-    }
-    .glass-table {
-        background: rgba(255,255,255,0.81);
-        border-radius: 12px;
-        box-shadow: 0 4px 24px 0 rgba(31,38,135,0.09);
-        backdrop-filter: blur(2.5px);
-        -webkit-backdrop-filter: blur(2.5px);
-    }
-    .fade-in {
-        opacity: 0;
-        animation: fadeIn 0.7s forwards;
-    }
-    @keyframes fadeIn {
-        to { opacity: 1; }
-    }
-    #scanner:focus {
-    border: 2.5px solid #ff4d4f !important;   /* rojo */
-    box-shadow: 0 0 6px #ff4d4f60 !important; /* suave sombra roja */
+.glass-card {
+    background: rgba(255,255,255,0.92);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px 0 rgba(31,38,135,0.14);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+}
+.glass-table {
+    background: rgba(255,255,255,0.81);
+    border-radius: 12px;
+    box-shadow: 0 4px 24px 0 rgba(31,38,135,0.09);
+    backdrop-filter: blur(2.5px);
+    -webkit-backdrop-filter: blur(2.5px);
+}
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 0.7s forwards;
+}
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+#scanner:focus {
+    border: 2.5px solid #ff4d4f !important;
+    box-shadow: 0 0 6px #ff4d4f60 !important;
     border-radius: 8px;
     outline: none !important;
-    }
+}
 </style>
 {% endblock %}
