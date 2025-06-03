@@ -9,4 +9,5 @@ qrcode
 pyHanko
 pyhanko-certvalidator
 python-dateutil
+XlsxWriter
 
