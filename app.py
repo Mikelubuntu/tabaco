@@ -649,6 +649,12 @@ def importar_productos_fijos():
     conn.close()
     print("Importación terminada")
 
+    from flask import send_file
+
+@app.route('/descargar_db')
+def descargar_db():
+    return send_file('database.db', as_attachment=True)
+
 if __name__ == "__main__":
     # importar_productos_fijos()  # <--- COMENTADO: NO se ejecuta la importación al iniciar la app
     import os
