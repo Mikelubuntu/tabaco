@@ -715,7 +715,7 @@ def cruce_inventario():
         tienda = tiendas[0]
         df_casa = df_casa[df_casa['Nombre almacén'].astype(str).str.strip() == tienda]
 
-        # 6) Renombrar columnas para merge
+                # 6) Renombrar columnas de stock
         df_as400 = df_as400.rename(columns={'Stock': 'Stock_AS400'})
         df_casa = df_casa.rename(columns={'Stock': 'Stock_CASA'})
 
@@ -723,36 +723,34 @@ def cruce_inventario():
         df_as400['Stock_AS400'] = pd.to_numeric(df_as400['Stock_AS400'], errors='coerce').fillna(0).astype(int)
         df_casa['Stock_CASA'] = pd.to_numeric(df_casa['Stock_CASA'], errors='coerce').fillna(0).astype(int)
 
-        # 8) Hacer merge
+        # 8) Preparar columnas necesarias para merge
+        columnas_utiles = ['Código artículo', 'Descripción artículo', 'EAN', 'EAN2']
+        df_as400 = df_as400[columnas_utiles + ['Stock_AS400']]
+        df_casa = df_casa[columnas_utiles + ['Stock_CASA']]
+
+        # 9) Merge completo con prioridad de datos AS400
         df_merge = pd.merge(
             df_as400,
-            df_casa[['Código artículo', 'Stock_CASA']],
+            df_casa,
             on='Código artículo',
             how='outer',
+            suffixes=('_AS400', '_CASA'),
             indicator=True
         )
 
-        # 9) Rellenar valores faltantes
-        for col in ['Stock_AS400', 'Stock_CASA', 'Descripción artículo', 'EAN', 'EAN2']:
-            if col not in df_merge.columns:
-                df_merge[col] = ''
-        df_merge['Stock_AS400'] = df_merge['Stock_AS400'].fillna(0).astype(int)
-        df_merge['Stock_CASA'] = df_merge['Stock_CASA'].fillna(0).astype(int)
-        df_merge['Descripción artículo'] = df_merge['Descripción artículo'].fillna('')
-        df_merge['EAN'] = df_merge['EAN'].fillna('').astype(str).str.replace('.0', '', regex=False)
-        df_merge['EAN2'] = df_merge['EAN2'].fillna('').astype(str).str.replace('.0', '', regex=False)
+        # 10) Unificar columnas de descripción y códigos de barras
+        df_merge['DESCRIPCION'] = df_merge['Descripción artículo_AS400'].combine_first(df_merge['Descripción artículo_CASA'])
+        df_merge['EAN'] = df_merge['EAN_AS400'].combine_first(df_merge['EAN_CASA'])
+        df_merge['EAN2'] = df_merge['EAN2_AS400'].combine_first(df_merge['EAN2_CASA'])
 
-        # 10) Calcular diferencias
-        df_merge['DIFERENCIA'] = df_merge['Stock_CASA'] - df_merge['Stock_AS400']
-
-        # 11) Crear alias para tabla
-        df_merge['CODIGO'] = df_merge['Código artículo']
-        df_merge['DESCRIPCION'] = df_merge['Descripción artículo']
-        df_merge['Cantidad Física_AS400'] = df_merge['Stock_AS400']
-        df_merge['Cantidad Física_CASA'] = df_merge['Stock_CASA']
+        # 11) Calcular diferencias de stock
+        df_merge['Cantidad Física_AS400'] = df_merge['Stock_AS400'].fillna(0).astype(int)
+        df_merge['Cantidad Física_CASA'] = df_merge['Stock_CASA'].fillna(0).astype(int)
+        df_merge['DIFERENCIA'] = df_merge['Cantidad Física_CASA'] - df_merge['Cantidad Física_AS400']
 
         # 12) Tabla de diferencias
         diffs = df_merge[df_merge['DIFERENCIA'] != 0].copy()
+        diffs['CODIGO'] = diffs['Código artículo']
         tabla_diferencias = diffs[[
             'CODIGO',
             'DESCRIPCION',
@@ -767,6 +765,7 @@ def cruce_inventario():
         faltantes = df_merge[df_merge['_merge'] == 'left_only']
         if not faltantes.empty:
             hay_faltantes_as400 = True
+            faltantes['CODIGO'] = faltantes['Código artículo']
             lista_solo_as400 = faltantes[[
                 'CODIGO',
                 'DESCRIPCION',
