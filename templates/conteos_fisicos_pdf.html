@@ -3,34 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <title>Conteos PDF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 9px;
+            margin: 20px;
+        }
+        h3 {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        colgroup col {
+            width: 11%;
+        }
+        colgroup col.desc {
+            width: 20%;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 4px;
+            text-align: left;
+            vertical-align: top;
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #f0f0f0;
+            font-size: 8.5px;
+        }
+    </style>
 </head>
 <body>
 <h3>Conteos en Tienda</h3>
-<table border="1" cellpadding="4" cellspacing="0">
-    <tr>
-        <th>ID</th>
-        <th>Tienda</th>
-        <th>Código</th>
-        <th>Descripción</th>
-        <th>Cód. Barras</th>
-        <th>Cantidad Física</th>
-        <th>Fecha</th>
-    </tr>
+<table>
+    <colgroup>
+        <col>
+        <col>
+        <col>
+        <col>
+        <col>
+        <col class="desc">
+        <col>
+        <col>
+        <col>
+    </colgroup>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tienda</th>
+            <th>EAN</th>
+            <th>EAN2</th>
+            <th>Código</th>
+            <th>Descripción</th>
+            <th>Cod. Barras</th>
+            <th>Cantidad</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
     {% for c in conteos %}
-    <tr>
-        <td>{{ c.id }}</td>
-        <td>{{ c.tienda }}</td>
-        <td>{{ c.codigo }}</td>
-        <td>{{ c.descripcion }}</td>
-        <td>{{ c.cod_barras }}</td>
-        <td>{{ c.stock_fisico }}</td>
-        <td>{{ c.fecha }}</td>
-    </tr>
+        <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.tienda }}</td>
+            <td>{{ c.ean | string }}</td>
+            <td>{{ c.ean2 | string }}</td>
+            <td>{{ c.codigo }}</td>
+            <td>{{ c.descripcion }}</td>
+            <td>{{ c.cod_barras or c.ean }}</td>
+            <td>{{ c.stock_fisico }}</td>
+            <td>{{ c.fecha }}</td>
+        </tr>
     {% else %}
-    <tr>
-        <td colspan="7">No hay conteos registrados.</td>
-    </tr>
+        <tr>
+            <td colspan="9">No hay conteos registrados.</td>
+        </tr>
     {% endfor %}
+    </tbody>
 </table>
 </body>
 </html>

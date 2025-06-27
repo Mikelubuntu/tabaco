@@ -6,6 +6,13 @@ from io import BytesIO
 from xhtml2pdf import pisa
 import io
 import os
+import numpy as np
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+
+
+
 
 app = Flask(__name__)
 app.secret_key = '0022'
@@ -96,14 +103,20 @@ def get_productos_de_tienda_y_fecha(tienda, fecha):
     return resultados
 
 def productos_sql_a_dict(productos_sql):
+    def limpiar(valor):
+        return str(valor).strip() if valor not in [None, "", 0, "0"] else ""
+
     return [
         {
             "codigo": p["codigo"],
             "descripcion": p["descripcion"],
-            "cod_barras": p["cod_barras"]
+            "ean": limpiar(p["ean"]),
+            "ean2": limpiar(p["ean2"]),
+            "cod_barras": limpiar(p["ean"])
         }
         for p in productos_sql
     ]
+
 # ------------ Rutas principales -----------
 
 @app.route('/inventario')
@@ -132,7 +145,9 @@ def agregar_producto():
     if request.method == 'POST':
         codigo = request.form['codigo']
         descripcion = request.form['descripcion']
-        cod_barras = request.form['cod_barras']
+        ean = request.form.get('ean', '').strip()
+        ean2 = request.form.get('ean2', '').strip()
+
         conn = get_db_connection()
         existe = conn.execute(
             "SELECT * FROM productos WHERE codigo = ?",
@@ -144,8 +159,8 @@ def agregar_producto():
             return render_template('agregar_producto.html', mensaje=mensaje)
         else:
             conn.execute(
-                'INSERT INTO productos (codigo, descripcion, cod_barras) VALUES (?, ?, ?)',
-                (codigo, descripcion, cod_barras)
+                'INSERT INTO productos (codigo, descripcion, ean, ean2) VALUES (?, ?, ?, ?)',
+                (codigo, descripcion, ean, ean2)
             )
             conn.commit()
             conn.close()
@@ -176,19 +191,17 @@ def exportar_conteos_excel():
 
     # Renombra y reordena las columnas
     df = df.rename(columns={
-        'codigo': 'COD. ARTICULO',
-        'CODIGO': 'COD. ARTICULO',
-        'cod_articulo': 'COD. ARTICULO',
-        'cod_barras': 'COD.BARRAS',
-        'CODBARRAS': 'COD.BARRAS',
-        'COD.BARRAS': 'COD.BARRAS',
-        'descripcion': 'DESCRIPCION',
-        'DESCRIPCIÓN': 'DESCRIPCION',
-        'stock_fisico': 'Cantidad Física',
-        'STOCK_FISICO': 'Cantidad Física'
-    })
+    'id': 'id',
+    'ean': 'EAN',
+    'ean2': 'EAN2',
+    'codigo': 'Código artículo',
+    'descripcion': 'Descripción artículo',
+    'tienda': 'Nombre almacén',
+    'stock_fisico': 'Stock',
+    'cod_barras': 'COD.BARRAS'
+})
 
-    columnas_finales = ['id', 'tienda', 'COD. ARTICULO', 'DESCRIPCION', 'COD.BARRAS', 'Cantidad Física', 'fecha']
+    columnas_finales = ['id', 'EAN', 'EAN2', 'Código artículo', 'Descripción artículo', 'Nombre almacén', 'COD.BARRAS', 'Stock', 'fecha']
 
     # Sólo usa columnas que existen realmente en el df (puedes avisar si falta alguna)
     columnas_existentes = [col for col in columnas_finales if col in df.columns]
@@ -199,11 +212,32 @@ def exportar_conteos_excel():
         faltan = set(columnas_finales) - set(columnas_existentes)
         print("FALTAN COLUMNAS en exportar_conteos_excel:", faltan)
 
+    from openpyxl.styles import numbers
+
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False)
+        df.to_excel(writer, index=False, sheet_name='Conteos')
+        workbook = writer.book
+        worksheet = writer.sheets['Conteos']
+    
+    # Aplicar formato de texto a columnas específicas (EAN, EAN2, COD.BARRAS)
+        for idx, col_name in enumerate(df.columns):
+            if col_name in ['EAN', 'EAN2', 'COD.BARRAS']:
+                col_letter = chr(65 + idx)  # A, B, C, etc.
+                for cell in worksheet[f"{col_letter}2":f"{col_letter}{len(df)+1}"]:
+                    for c in cell:
+                        c.number_format = numbers.FORMAT_TEXT
+
     output.seek(0)
-    return send_file(output, download_name="conteos_fisicos.xlsx", as_attachment=True)
+    return send_file(
+    output,
+    download_name="conteos_fisicos.xlsx",
+    as_attachment=True,
+    mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+)
+
+from flask import make_response
+
 
 @app.route('/exportar_conteos_pdf')
 @login_requerido
@@ -215,15 +249,54 @@ def exportar_conteos_pdf():
     else:
         conteos = conn.execute("SELECT * FROM conteos_fisicos ORDER BY fecha DESC").fetchall()
     conn.close()
-    html = render_template('conteos_fisicos_pdf.html', conteos=conteos)
-    result = io.BytesIO()
-    pdf = pisa.pisaDocument(io.BytesIO(html.encode("UTF-8")), result)
-    if not pdf.err:
-        response = make_response(result.getvalue())
-        response.headers["Content-Type"] = "application/pdf"
-        response.headers["Content-Disposition"] = "attachment; filename=conteos_fisicos.pdf"
-        return response
-    return "Error al generar PDF", 500
+
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    c.setFont("Helvetica-Bold", 12)
+    c.drawCentredString(width / 2.0, height - 40, f"Conteos en Tienda - {tienda or 'Todas'}")
+
+    headers = ["ID", "Tienda", "EAN", "EAN2", "Código", "Descripción", "Cantidad", "Fecha"]
+    col_widths = [50, 70, 80, 80, 60, 150, 50, 100]
+    total_table_width = sum(col_widths)
+    left_margin = (width - total_table_width) / 2  # Centrado en la página
+    y = height - 70  # Posición inicial vertical
+
+    # Dibujar encabezados
+    c.setFont("Helvetica-Bold", 9)
+    for i, h in enumerate(headers):
+        x = sum(col_widths[:i]) + left_margin
+        c.drawString(x, y, h)
+
+    # Dibujar datos
+    c.setFont("Helvetica", 8)
+    y -= 15
+    for row in conteos:
+        datos = [
+            row['id'],
+            row['tienda'],
+            str(row['ean']),
+            str(row['ean2']),
+            row['codigo'],
+            row['descripcion'][:40],  # limitar descripción
+            row['stock_fisico'],
+            row['fecha']
+        ]
+        for i, dato in enumerate(datos):
+            x = sum(col_widths[:i]) + left_margin
+            c.drawString(x, y, str(dato))
+        y -= 12
+        if y < 50:
+            c.showPage()
+            y = height - 50
+            c.setFont("Helvetica", 8)
+
+    c.save()
+    buffer.seek(0)
+
+    return send_file(buffer, as_attachment=True, download_name="conteos_fisicos.pdf", mimetype='application/pdf')
+
 
 # ------------ Inventario físico por tienda, guay! ------------
 import json
@@ -236,21 +309,42 @@ def inventario_fisico():
     productos_sql = conn.execute('SELECT * FROM productos').fetchall()
     conn.close()
 
-    # Convierte productos de SQL a dict para unirlos a la lista estática
     productos_db = productos_sql_a_dict(productos_sql)
 
-    # Unir listas, pero que no se repita un código ya en la base de datos
-    codigos_db = set(p["codigo"] for p in productos_db)
-    productos_unidos = productos_db + [p for p in productos if p["codigo"] not in codigos_db]
+    # ✅ Función bien indentada dentro de la función principal
+    def transformar_json(producto):
+        def limpiar(valor):
+            return str(valor).strip() if valor not in [None, "", 0, "0"] else ""
+
+        return {
+        "codigo": producto.get("Código artículo", "").strip(),
+        "descripcion": producto.get("Descripción artículo", "").strip(),
+        "ean": limpiar(producto.get("EAN")),
+        "ean2": limpiar(producto.get("EAN2")),
+        "cod_barras": limpiar(producto.get("EAN"))
+    }
+
+
+    # ✅ Unir productos priorizando los del JSON
+    productos_json_transformados = [transformar_json(p) for p in productos]
+    productos_dict = {p["codigo"]: p for p in productos_db}
+    productos_dict.update({p["codigo"]: p for p in productos_json_transformados})
+    productos_unidos = list(productos_dict.values())
+
+    productos_unidos.sort(key=lambda x: (
+        str(x.get('ean', '')),
+        str(x.get('ean2', '')),
+        x.get('codigo', ''),
+        x.get('descripcion', '')
+    ))
 
     if request.method == 'POST':
         tienda = request.form['tienda']
-        autor = request.form.get('autor', '').strip()  # <--- Recoge el nombre del autor (del input hidden del modal)
+        autor = request.form.get('autor', '').strip()
         productos_modificados = 0
-        inventario_actual = []  # <--- Lista para guardar productos y cantidades de este inventario
+        inventario_actual = []
         conn = get_db_connection()
 
-        # Guarda cantidades de los productos en el listado normal
         for producto in productos_unidos:
             cantidad = request.form.get(f"stock_{producto['codigo']}")
             try:
@@ -259,21 +353,24 @@ def inventario_fisico():
                 cantidad_num = 0
             if cantidad_num > 0:
                 conn.execute(
-                    'INSERT INTO conteos_fisicos (tienda, codigo, descripcion, cod_barras, stock_fisico, fecha, autor) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)',
-                    (tienda, producto['codigo'], producto['descripcion'], producto['cod_barras'], cantidad_num, autor)
+                    'INSERT INTO conteos_fisicos (tienda, codigo, descripcion, ean, ean2, stock_fisico, fecha, autor) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)',
+                    (tienda, producto['codigo'], producto['descripcion'], producto['ean'], producto['ean2'], cantidad_num, autor)
                 )
                 productos_modificados += 1
                 inventario_actual.append({
                     "codigo": producto['codigo'],
                     "descripcion": producto['descripcion'],
                     "cod_barras": producto['cod_barras'],
+                    "ean": producto.get('ean', ''),
+                    "ean2": producto.get('ean2', ''),
                     "cantidad": cantidad_num
-                })
+})
 
-        # ---- Guarda el producto escrito a mano si lo hay ----
+
         manual_codigo = request.form.get("manual_codigo", "").strip()
         manual_descripcion = request.form.get("manual_descripcion", "").strip()
-        manual_cod_barras = request.form.get("manual_cod_barras", "").strip()
+        manual_ean = request.form.get("manual_ean", "").strip()
+        manual_ean2 = request.form.get("manual_ean2", "").strip()
         manual_cantidad = request.form.get("manual_cantidad", "").strip()
 
         if manual_codigo and manual_descripcion and manual_cantidad:
@@ -283,40 +380,56 @@ def inventario_fisico():
                 cantidad_manual = 0
             if cantidad_manual > 0:
                 conn.execute(
-                    'INSERT INTO conteos_fisicos (tienda, codigo, descripcion, cod_barras, stock_fisico, fecha, autor) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)',
-                    (tienda, manual_codigo, manual_descripcion, manual_cod_barras, cantidad_manual, autor)
+                    'INSERT INTO conteos_fisicos (tienda, codigo, descripcion, ean, ean2, stock_fisico, fecha, autor) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)',
+                    (tienda, manual_codigo, manual_descripcion, manual_ean, manual_ean2, cantidad_manual, autor)
                 )
                 productos_modificados += 1
                 inventario_actual.append({
                     "codigo": manual_codigo,
                     "descripcion": manual_descripcion,
-                    "cod_barras": manual_cod_barras,
+                    "cod_barras": manual_ean,
+                    "ean": manual_ean,
+                    "ean2": manual_ean2,
                     "cantidad": cantidad_manual
-                })
+})
+
 
         conn.commit()
 
-        # ----------- GUARDADO DEL HISTÓRICO -----------
         if productos_modificados > 0 and autor:
             conn.execute(
                 "INSERT INTO inventario_historico (autor, tienda, productos_json) VALUES (?, ?, ?)",
                 (autor, tienda, json.dumps(inventario_actual, ensure_ascii=False))
             )
             conn.commit()
-        # -----------------------------------------------
 
         conn.close()
-        if productos_modificados > 0:
-            mensaje = f"Se guardaron {productos_modificados} productos correctamente."
-        else:
-            mensaje = "No se guardó ningún producto (no se modificó cantidad)."
-        # Vuelve a unir listas para mostrar después de POST
+
+        mensaje = (
+            f"Se guardaron {productos_modificados} productos correctamente."
+            if productos_modificados > 0 else
+            "No se guardó ningún producto (no se modificó cantidad)."
+        )
+
+        # ✅ Vuelve a unir productos después del POST
         productos_sql = get_db_connection().execute('SELECT * FROM productos').fetchall()
         productos_db = productos_sql_a_dict(productos_sql)
-        codigos_db = set(p["codigo"] for p in productos_db)
-        productos_unidos = productos_db + [p for p in productos if p["codigo"] not in codigos_db]
+        productos_json_transformados = [transformar_json(p) for p in productos]
+        productos_dict = {p["codigo"]: p for p in productos_db}
+        productos_dict.update({p["codigo"]: p for p in productos_json_transformados})
+        productos_unidos = list(productos_dict.values())
+
+        productos_unidos.sort(key=lambda x: (
+            str(x.get('ean', '')),
+            str(x.get('ean2', '')),
+            x.get('codigo', ''),
+            x.get('descripcion', '')
+        ))
+
         return render_template('inventario_fisico.html', tiendas=tiendas, productos=productos_unidos, mensaje=mensaje)
+
     return render_template('inventario_fisico.html', tiendas=tiendas, productos=productos_unidos)
+
 
 @app.route('/conteos_fisicos', methods=['GET'])
 @login_requerido
@@ -421,113 +534,7 @@ def editar_producto(id):
     conn.close()
     return render_template('editar_producto.html', producto=producto)
 
-@app.route('/cruce_inventario', methods=['GET', 'POST'])
-@login_requerido
-def cruce_inventario():
-    mensaje = ''
-    resumen = None
-    tabla_diferencias = None
-    archivo_listo = False
 
-    if request.method == 'POST':
-        file_as400 = request.files.get('archivo_as400')
-        file_casa = request.files.get('archivo_casa_ricardo')
-
-        if not file_as400 or not file_casa:
-            mensaje = "¡Debes subir ambos archivos!"
-            return render_template('cruce.html', mensaje=mensaje)
-
-        # Lee archivos Excel
-        df_as400 = pd.read_excel(file_as400)
-        df_casa = pd.read_excel(file_casa)
-
-        # Renombrar columnas para coincidir
-        df_casa = df_casa.rename(columns={
-            'stock_fisico': 'Cantidad Física',
-            'COD.ARTICULO': 'COD. ARTICULO',
-            'COD.BARRAS': 'COD. BARRAS',
-            'DESCRIPCION': 'DESCRIPCION'
-        })
-        df_as400 = df_as400.rename(columns={
-            'EXISTENCIAS': 'Cantidad Física',
-            'COD. ARTICULO': 'COD. ARTICULO',
-            'COD. BARRAS': 'COD. BARRAS',
-            'DESCRIPCION': 'DESCRIPCION'
-        })
-
-        # Forzar clave de cruce a string
-        df_casa['DESCRIPCION'] = df_casa['DESCRIPCION'].astype(str)
-        df_as400['DESCRIPCION'] = df_as400['DESCRIPCION'].astype(str)
-
-        # Merge por DESCRIPCION
-        df_merge = pd.merge(
-            df_casa, df_as400,
-            how='outer',
-            on=['DESCRIPCION'],
-            suffixes=('_CASA', '_AS400'),
-            indicator=True
-        )
-
-        solo_casa = df_merge[df_merge['_merge'] == 'left_only']
-        solo_as400 = df_merge[df_merge['_merge'] == 'right_only']
-        en_ambos = df_merge[df_merge['_merge'] == 'both'].copy()
-        en_ambos['DIFERENCIA'] = (en_ambos['Cantidad Física_CASA'].fillna(0) - en_ambos['Cantidad Física_AS400'].fillna(0))
-        diferencias_stock = en_ambos[en_ambos['DIFERENCIA'] != 0]
-
-        resumen = {
-            'diferente_stock': int(len(diferencias_stock))
-        }
-
-        # --------- NUEVO: Productos solo en AS400 con existencias ---------
-        solo_as400_con_stock = solo_as400[solo_as400['Cantidad Física_AS400'].fillna(0) > 0]
-
-        if not solo_as400_con_stock.empty:
-            lista_solo_as400 = solo_as400_con_stock[['DESCRIPCION', 'Cantidad Física_AS400']].head(30).to_dict(orient='records')
-            hay_faltantes_as400 = True
-            num_faltantes_as400 = len(solo_as400_con_stock)
-        else:
-            lista_solo_as400 = []
-            hay_faltantes_as400 = False
-            num_faltantes_as400 = 0
-        # --------------------------------------------------------------
-
-        # ...después de calcular diferencias_stock...
-        if not diferencias_stock.empty:
-            cols_tabla = ['tienda', 'DESCRIPCION', 'Cantidad Física_CASA', 'Cantidad Física_AS400', 'DIFERENCIA']
-            cols_tabla = [col for col in cols_tabla if col in diferencias_stock.columns]
-            tabla_diferencias = diferencias_stock[cols_tabla].head(50).to_dict(orient='records')
-        else:
-            tabla_diferencias = None
-
-
-
-        # Exporta el resultado en memoria y guarda el archivo en disco
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            solo_casa.to_excel(writer, sheet_name='Solo en Casa', index=False)
-            solo_as400.to_excel(writer, sheet_name='Solo en AS400', index=False)
-            diferencias_stock.to_excel(writer, sheet_name='Diferencias Stock', index=False)
-        output.seek(0)
-        ruta_excel = os.path.join('static', 'temp', 'resultado_cruce.xlsx')
-        os.makedirs(os.path.dirname(ruta_excel), exist_ok=True)
-        with open(ruta_excel, 'wb') as f:
-            f.write(output.read())
-        session['resultado_cruce_path'] = ruta_excel
-        archivo_listo = True
-
-        return render_template(
-            'cruce.html',
-            mensaje=mensaje,
-            resumen=resumen,
-            archivo_listo=archivo_listo,
-            tabla_diferencias=tabla_diferencias,
-            hay_faltantes_as400=hay_faltantes_as400,
-            num_faltantes_as400=num_faltantes_as400,
-            lista_solo_as400=lista_solo_as400
-        )
-
-    # Si es GET (o si no subió archivos), render vacío:
-    return render_template('cruce.html', mensaje=mensaje)
 
 @app.route('/descargar_cruce')
 @login_requerido
@@ -654,6 +661,176 @@ def importar_productos_fijos():
 @app.route('/descargar_db')
 def descargar_db():
     return send_file('database.db', as_attachment=True)
+
+def agregar_columnas_ean():
+    conn = get_db_connection()
+    try:
+        conn.execute("ALTER TABLE productos ADD COLUMN ean TEXT;")
+    except:
+        print("La columna 'ean' ya existe.")
+    try:
+        conn.execute("ALTER TABLE productos ADD COLUMN ean2 TEXT;")
+    except:
+        print("La columna 'ean2' ya existe.")
+    conn.commit()
+    conn.close()
+
+@app.route('/cruce_inventario', methods=['GET', 'POST'])
+@login_requerido
+def cruce_inventario():
+    mensaje = ''
+    resumen = {}
+    tabla_diferencias = []
+    lista_solo_as400 = []
+    hay_faltantes_as400 = False
+
+    if request.method == 'POST':
+        # 1) Cargar archivos
+        f_as400 = request.files.get('archivo_as400')
+        f_casa = request.files.get('archivo_casa_ricardo')
+        if not f_as400 or not f_casa:
+            mensaje = "Debes subir ambos ficheros: AS400 y Casa Ricardo."
+            return render_template('cruce.html', mensaje=mensaje)
+
+        # 2) Leer ambos archivos
+        df_as400 = pd.read_excel(f_as400, dtype=str)
+        df_casa = pd.read_excel(f_casa, dtype=str)
+
+        # 3) Verificar columnas mínimas necesarias
+        columnas_necesarias = ['Código artículo', 'Descripción artículo', 'EAN', 'EAN2', 'Stock', 'Nombre almacén']
+        for col in columnas_necesarias:
+            if col not in df_as400.columns or col not in df_casa.columns:
+                mensaje = f"Falta la columna '{col}' en uno de los archivos."
+                return render_template('cruce.html', mensaje=mensaje)
+
+        # 4) Normalizar códigos
+        df_as400['Código artículo'] = df_as400['Código artículo'].astype(str).str.strip()
+        df_casa['Código artículo'] = df_casa['Código artículo'].astype(str).str.strip()
+
+        # 5) Filtrar por tienda única
+        tiendas = df_casa['Nombre almacén'].astype(str).str.strip().unique()
+        if len(tiendas) != 1:
+            mensaje = f"El archivo de Casa Ricardo debe contener una sola tienda. Encontradas: {', '.join(tiendas)}"
+            return render_template('cruce.html', mensaje=mensaje)
+        tienda = tiendas[0]
+        df_casa = df_casa[df_casa['Nombre almacén'].astype(str).str.strip() == tienda]
+
+        # 6) Renombrar columnas para merge
+        df_as400 = df_as400.rename(columns={'Stock': 'Stock_AS400'})
+        df_casa = df_casa.rename(columns={'Stock': 'Stock_CASA'})
+
+        # 7) Convertir cantidades a números enteros
+        df_as400['Stock_AS400'] = pd.to_numeric(df_as400['Stock_AS400'], errors='coerce').fillna(0).astype(int)
+        df_casa['Stock_CASA'] = pd.to_numeric(df_casa['Stock_CASA'], errors='coerce').fillna(0).astype(int)
+
+        # 8) Hacer merge
+        df_merge = pd.merge(
+            df_as400,
+            df_casa[['Código artículo', 'Stock_CASA']],
+            on='Código artículo',
+            how='outer',
+            indicator=True
+        )
+
+        # 9) Rellenar valores faltantes
+        for col in ['Stock_AS400', 'Stock_CASA', 'Descripción artículo', 'EAN', 'EAN2']:
+            if col not in df_merge.columns:
+                df_merge[col] = ''
+        df_merge['Stock_AS400'] = df_merge['Stock_AS400'].fillna(0).astype(int)
+        df_merge['Stock_CASA'] = df_merge['Stock_CASA'].fillna(0).astype(int)
+        df_merge['Descripción artículo'] = df_merge['Descripción artículo'].fillna('')
+        df_merge['EAN'] = df_merge['EAN'].fillna('').astype(str).str.replace('.0', '', regex=False)
+        df_merge['EAN2'] = df_merge['EAN2'].fillna('').astype(str).str.replace('.0', '', regex=False)
+
+        # 10) Calcular diferencias
+        df_merge['DIFERENCIA'] = df_merge['Stock_CASA'] - df_merge['Stock_AS400']
+
+        # 11) Crear alias para tabla
+        df_merge['CODIGO'] = df_merge['Código artículo']
+        df_merge['DESCRIPCION'] = df_merge['Descripción artículo']
+        df_merge['Cantidad Física_AS400'] = df_merge['Stock_AS400']
+        df_merge['Cantidad Física_CASA'] = df_merge['Stock_CASA']
+
+        # 12) Tabla de diferencias
+        diffs = df_merge[df_merge['DIFERENCIA'] != 0].copy()
+        tabla_diferencias = diffs[[
+            'CODIGO',
+            'DESCRIPCION',
+            'EAN',
+            'EAN2',
+            'Cantidad Física_AS400',
+            'Cantidad Física_CASA',
+            'DIFERENCIA'
+        ]].to_dict(orient='records')
+
+        # 13) Faltantes solo en AS400
+        faltantes = df_merge[df_merge['_merge'] == 'left_only']
+        if not faltantes.empty:
+            hay_faltantes_as400 = True
+            lista_solo_as400 = faltantes[[
+                'CODIGO',
+                'DESCRIPCION',
+                'EAN',
+                'EAN2',
+                'Cantidad Física_AS400'
+            ]].to_dict(orient='records')
+
+        # 14) Resumen
+        resumen = {
+            'tienda': tienda,
+            'diferente_stock': len(tabla_diferencias),
+            'num_faltantes_as400': len(lista_solo_as400)
+        }
+
+        # 15) Exportar Excel (NO altera nada más)
+        import xlsxwriter
+        from io import BytesIO
+
+        df_export = diffs[[
+            'CODIGO',
+            'DESCRIPCION',
+            'EAN',
+            'EAN2',
+            'Cantidad Física_AS400',
+            'Cantidad Física_CASA',
+            'DIFERENCIA'
+        ]]
+
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df_export.to_excel(writer, index=False, sheet_name='Diferencias')
+            workbook = writer.book
+            worksheet = writer.sheets['Diferencias']
+
+            formato_rojo = workbook.add_format({'font_color': 'red'})
+            formato_verde = workbook.add_format({'font_color': 'green'})
+
+            for row_num, value in enumerate(df_export['DIFERENCIA'], start=1):
+                if value < 0:
+                    worksheet.write(row_num, 6, value, formato_rojo)
+                elif value > 0:
+                    worksheet.write(row_num, 6, value, formato_verde)
+                else:
+                    worksheet.write(row_num, 6, value)
+
+        ruta_export = os.path.join("static", "temp", "cruce_export.xlsx")
+        with open(ruta_export, 'wb') as f:
+            f.write(output.getvalue())
+
+        session['resultado_cruce_path'] = ruta_export
+
+        return render_template(
+            'cruce.html',
+            resumen=resumen,
+            tabla_diferencias=tabla_diferencias,
+            hay_faltantes_as400=hay_faltantes_as400,
+            lista_solo_as400=lista_solo_as400,
+            num_faltantes_as400=len(lista_solo_as400),
+            archivo_listo=True  # Para activar botón de descarga
+        )
+
+    return render_template('cruce.html', mensaje=mensaje)
+
 
 if __name__ == "__main__":
     # importar_productos_fijos()  # <--- COMENTADO: NO se ejecuta la importación al iniciar la app

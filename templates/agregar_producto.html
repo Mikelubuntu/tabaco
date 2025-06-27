@@ -11,16 +11,20 @@
                 {% endif %}
                 <form method="post">
                     <div class="mb-3">
-                        <label for="codigo" class="form-label">Código</label>
+                        <label for="codigo" class="form-label">Código artículo</label>
                         <input type="text" class="form-control" id="codigo" name="codigo" required autocomplete="off">
                     </div>
                     <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción</label>
+                        <label for="descripcion" class="form-label">Descripción artículo</label>
                         <input type="text" class="form-control" id="descripcion" name="descripcion" required autocomplete="off">
                     </div>
                     <div class="mb-3">
-                        <label for="cod_barras" class="form-label">Código de Barras</label>
-                        <input type="text" class="form-control" id="cod_barras" name="cod_barras" required autocomplete="off">
+                        <label for="ean" class="form-label">EAN</label>
+                        <input type="text" class="form-control" id="ean" name="ean" autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                        <label for="ean2" class="form-label">EAN2</label>
+                        <input type="text" class="form-control" id="ean2" name="ean2" autocomplete="off">
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-success"><i class="bi bi-plus-circle"></i> Agregar Producto</button>

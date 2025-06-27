@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base.html" %} 
 
 {% block content %}
 <div class="container fade-in">
@@ -34,14 +34,22 @@
                             <div class="collapse mt-2" id="productos_{{ h.id }}">
                                 <ul class="list-group">
                                     {% for p in h.productos %}
-                                      <li class="list-group-item">
+                                        <li class="list-group-item" style="font-size: 0.80em; white-space: nowrap;">
                                         {% if p.eliminado %}
                                           <span style="text-decoration:line-through;">
-                                            <strong>{{ p.codigo }}</strong> | {{ p.descripcion }} | <span class="text-muted">{{ p.cod_barras }}</span> | Cantidad: <strong>{{ p.cantidad }}</strong>
+                                            <strong>EAN:</strong> {{ p.ean or '-' }} |
+                                            <strong>EAN2:</strong> {{ p.ean2 or '-' }} |
+                                            <strong>{{ p.codigo }}</strong> |
+                                            {{ p.descripcion }} |
+                                            Cantidad: <strong>{{ p.cantidad }}</strong>
                                           </span>
                                           <div class="text-danger small">Eliminado: {{ p.motivo_eliminacion }}</div>
                                         {% else %}
-                                          <strong>{{ p.codigo }}</strong> | {{ p.descripcion }} | <span class="text-muted">{{ p.cod_barras }}</span> | Cantidad: <strong>{{ p.cantidad }}</strong>
+                                          <strong>EAN:</strong> {{ p.ean or '-' }} |
+                                          <strong>EAN2:</strong> {{ p.ean2 or '-' }} |
+                                          <strong>{{ p.codigo }}</strong> |
+                                          {{ p.descripcion }} |
+                                          Cantidad: <strong>{{ p.cantidad }}</strong>
                                         {% endif %}
                                       </li>
                                     {% endfor %}

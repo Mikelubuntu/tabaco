@@ -109,22 +109,26 @@ document.getElementById("btnCamScan").onclick = function() {
                     <table class="table table-striped align-middle table-hover glass-table shadow-sm">
                         <thead class="table-light">
                             <tr>
+                                <th>EAN</th>
+                                <th>EAN2</th>
                                 <th>COD. ARTÍCULO</th>
                                 <th>DESCRIPCIÓN</th>
-                                <th>COD. BARRAS</th>
                                 <th>Cantidad Física</th>
                             </tr>
+
                         </thead>
                         <tbody>
                         {% for p in productos %}
                             <tr data-codbarras="{{ p['cod_barras'] }}">
+                                <td>{{ p['ean'] }}</td>
+                                <td>{{ p['ean2'] }}</td>
                                 <td>{{ p['codigo'] }}</td>
                                 <td>{{ p['descripcion'] }}</td>
-                                <td>{{ p['cod_barras'] }}</td>
                                 <td>
                                     <input type="number" min="0" class="form-control" name="stock_{{ p['codigo'] }}" placeholder="Cantidad">
-                                </td>
+                                 </td>
                             </tr>
+
                         {% endfor %}
                         </tbody>
                     </table>
@@ -133,16 +137,19 @@ document.getElementById("btnCamScan").onclick = function() {
 <hr>
 <h5 class="mt-4 mb-2">Agregar producto inventariado a mano</h5>
 <div class="row g-2 mb-3">
-    <div class="col-md-3">
+    <div class="col-md-2">
+        <input type="text" class="form-control" name="manual_ean" placeholder="EAN manual">
+    </div>
+    <div class="col-md-2">
+        <input type="text" class="form-control" name="manual_ean2" placeholder="EAN2 manual">
+    </div>
+    <div class="col-md-2">
         <input type="text" class="form-control" name="manual_codigo" placeholder="Código manual">
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <input type="text" class="form-control" name="manual_descripcion" placeholder="Descripción manual">
     </div>
     <div class="col-md-3">
-        <input type="text" class="form-control" name="manual_cod_barras" placeholder="Cod. barras manual">
-    </div>
-    <div class="col-md-2">
         <input type="number" min="1" class="form-control" name="manual_cantidad" placeholder="Cantidad">
     </div>
 </div>
@@ -197,14 +204,17 @@ document.addEventListener("DOMContentLoaded", function() {
             const filter = input.value.toLowerCase();
             const rows = document.querySelectorAll("table tbody tr");
             rows.forEach(function(row) {
-                const codigo = row.children[0].innerText.toLowerCase();
-                const descripcion = row.children[1].innerText.toLowerCase();
-                const cod_barras = row.children[2].innerText.toLowerCase();
+                const ean = row.children[0].innerText.toLowerCase();
+                const ean2 = row.children[1].innerText.toLowerCase();
+                const codigo = row.children[2].innerText.toLowerCase();
+                const descripcion = row.children[3].innerText.toLowerCase();
+
                 if (
+                    ean.includes(filter) ||
+                    ean2.includes(filter) ||
                     codigo.includes(filter) ||
-                    descripcion.includes(filter) ||
-                    cod_barras.includes(filter)
-                ) {
+                    descripcion.includes(filter)
+){
                     row.style.display = "";
                 } else {
                     row.style.display = "none";

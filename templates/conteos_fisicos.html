@@ -33,9 +33,10 @@
                     <tr>
                         <th>ID</th>
                         <th>Tienda</th>
+                        <th>EAN</th>
+                        <th>EAN2</th>
                         <th>Código</th>
                         <th>Descripción</th>
-                        <th>Cód. Barras</th>
                         <th>Cantidad Física</th>
                         <th>Fecha</th>
                         <th>Usuario</th>
@@ -45,75 +46,33 @@
                 <tbody>
                 {% for c in conteos %}
                     <tr>
+                        <td>{{ (c.id if not c.eliminado else "<s>" ~ c.id ~ "</s>") | safe }}</td>
+                        <td>{{ (c.tienda if not c.eliminado else "<s>" ~ c.tienda ~ "</s>") | safe }}</td>
+                        <td>{{ (c.ean if not c.eliminado else "<s>" ~ c.ean ~ "</s>") | safe }}</td>
+                        <td>{{ (c.ean2 if not c.eliminado else "<s>" ~ c.ean2 ~ "</s>") | safe }}</td>
+                        <td>{{ (c.codigo if not c.eliminado else "<s>" ~ c.codigo ~ "</s>") | safe }}</td>
                         <td>
-                          {% if c.eliminado %}
-                            <span style="text-decoration:line-through;">{{ c.id }}</span>
-                          {% else %}
-                            {{ c.id }}
-                          {% endif %}
+                            {% if c.eliminado %}
+                                <s>{{ c.descripcion }}</s>
+                                <div class="text-danger small">Eliminado: {{ c.motivo_eliminacion }}</div>
+                            {% else %}
+                                {{ c.descripcion }}
+                            {% endif %}
                         </td>
-                        <td>
-                          {% if c.eliminado %}
-                            <span style="text-decoration:line-through;">{{ c.tienda }}</span>
-                          {% else %}
-                            {{ c.tienda }}
-                          {% endif %}
-                        </td>
-                        <td>
-                          {% if c.eliminado %}
-                            <span style="text-decoration:line-through;">{{ c.codigo }}</span>
-                          {% else %}
-                            {{ c.codigo }}
-                          {% endif %}
-                        </td>
-                        <td>
-                          {% if c.eliminado %}
-                            <span style="text-decoration:line-through;">{{ c.descripcion }}</span>
-                            <div class="text-danger small">Eliminado: {{ c.motivo_eliminacion }}</div>
-                          {% else %}
-                            {{ c.descripcion }}
-                          {% endif %}
-                        </td>
-                        <td>
-                          {% if c.eliminado %}
-                            <span style="text-decoration:line-through;">{{ c.cod_barras }}</span>
-                          {% else %}
-                            {{ c.cod_barras }}
-                          {% endif %}
-                        </td>
-                        <td>
-                          {% if c.eliminado %}
-                            <span style="text-decoration:line-through;">{{ c.stock_fisico }}</span>
-                          {% else %}
-                            {{ c.stock_fisico }}
-                          {% endif %}
-                        </td>
-                        <td>
-                          {% if c.eliminado %}
-                            <span style="text-decoration:line-through;">{{ c.fecha }}</span>
-                          {% else %}
-                            {{ c.fecha }}
-                          {% endif %}
-                        </td>
-                        <td>
-                          {% if c.eliminado %}
-                            <span style="text-decoration:line-through;">{{ c.autor or '-' }}</span>
-                          {% else %}
-                            {{ c.autor or '-' }}
-                          {% endif %}
-                        </td>
+                        <td>{{ (c.stock_fisico if not c.eliminado else "<s>" ~ c.stock_fisico ~ "</s>") | safe }}</td>
+                        <td>{{ (c.fecha if not c.eliminado else "<s>" ~ c.fecha ~ "</s>") | safe }}</td>
+                        <td>{{ (c.autor if not c.eliminado else "<s>" ~ (c.autor or '-') ~ "</s>") | safe }}</td>
                         <td>
                           {% if c.eliminado %}
                             <span class="text-danger small" title="{{ c.motivo_eliminacion }}"><i class="bi bi-x-circle"></i> Eliminado</span>
                           {% else %}
-                        {# <a href="{{ url_for('editar_conteo', id=c.id) }}" class="btn btn-primary btn-sm" title="Editar"><i class="bi bi-pencil"></i></a> #}
                             <button type="button" class="btn btn-danger btn-sm btn-eliminar" data-id="{{ c.id }}"><i class="bi bi-trash"></i></button>
                           {% endif %}
                         </td>
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="9" class="text-center text-muted">No hay conteos registrados.</td>
+                        <td colspan="10" class="text-center text-muted">No hay conteos registrados.</td>
                     </tr>
                 {% endfor %}
                 </tbody>
