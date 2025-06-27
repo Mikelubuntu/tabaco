@@ -223,38 +223,44 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Nuevo: Escaneo con aviso
-    const scannerInput = document.getElementById("scanner");
-    scannerInput.addEventListener("keydown", function(e) {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            const code = scannerInput.value.trim();
-            if (!code) return;
-            let found = false;
-            document.querySelectorAll("table tbody tr").forEach(function(row) {
-                if ((row.getAttribute("data-codbarras") || "").trim() === code) {
-                    const inputCantidad = row.querySelector("input[type='number']");
-                    let actual = parseInt(inputCantidad.value) || 0;
-                    inputCantidad.value = actual + 1;
-                    // Visual feedback
-                    showScanToast();
-                    beep();
-                    // Opcional: selecciona el campo para que sea visible
-                    inputCantidad.classList.add("table-success");
-                    setTimeout(() => inputCantidad.classList.remove("table-success"), 600);
-                    found = true;
-                    // Desplaza la tabla a la fila encontrada (UX)
-                    row.scrollIntoView({ behavior: "smooth", block: "center" });
-                }
-            });
-            if (!found) {
-                // Visual feedback si no se encuentra
-                scannerInput.classList.add("is-invalid");
-                setTimeout(() => scannerInput.classList.remove("is-invalid"), 900);
+// Nuevo: Escaneo con aviso
+const scannerInput = document.getElementById("scanner");
+scannerInput.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        const code = scannerInput.value.trim();
+        if (!code) return;
+
+        let found = false;
+        document.querySelectorAll("table tbody tr").forEach(function(row) {
+            const ean = row.children[0].innerText.trim();
+            const ean2 = row.children[1].innerText.trim();
+
+            if (ean === code || ean2 === code) {
+                const inputCantidad = row.querySelector("input[type='number']");
+                let actual = parseInt(inputCantidad.value) || 0;
+                inputCantidad.value = actual + 1;
+
+                // Visual feedback
+                showScanToast();
+                beep();
+                inputCantidad.classList.add("table-success");
+                setTimeout(() => inputCantidad.classList.remove("table-success"), 600);
+                row.scrollIntoView({ behavior: "smooth", block: "center" });
+
+                found = true;
             }
-            scannerInput.value = "";
+        });
+
+        if (!found) {
+            // Visual feedback si no se encuentra
+            scannerInput.classList.add("is-invalid");
+            setTimeout(() => scannerInput.classList.remove("is-invalid"), 900);
         }
-    });
+
+        scannerInput.value = "";
+    }
+});
 
     // Toast de Bootstrap 5 para feedback visual
     function showScanToast() {
