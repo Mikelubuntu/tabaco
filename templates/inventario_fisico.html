@@ -3,7 +3,7 @@
 <div class="row justify-content-center fade-in">
     <div class="col-lg-10">
         <div class="card p-4 glass-card shadow-sm mb-4">
-            <h2 class="mb-4 text-center"><i class="bi bi-box-seam"></i> Inventario Físico por Tienda</h2>
+            <h2 class="mb-4 text-center"><i class="bi bi-box-seam"></i> Inventario Físico</h2>
             <div class="alert alert-info mb-4">
                 <strong>¿Cómo funciona?</strong>
                 <ul class="mb-0">
@@ -101,14 +101,17 @@ document.getElementById("btnCamScan").onclick = function() {
     qrReaderVisible = true;
 };
 </script>
-
                 <!-- Campo para escanear código de barras -->
                 
+                <!-- Campo de búsqueda manual (fuera del scroll) -->
+                <div class="mb-3">
+                    <input id="buscador" type="text" class="form-control" placeholder="Buscar manualmente por Código, Descripción o Código de Barras...">
+                </div>
+
+                <!-- Contenedor con scroll solo para la tabla -->
                 <div class="table-responsive mb-4" style="max-height:500px; overflow:auto;">
-                    <div class="mb-3">
-                        <input id="buscador" type="text" class="form-control" placeholder="Buscar manualmente por Código, Descripción o Código de Barras...">
-                    </div>
                     <table class="table table-striped align-middle table-hover glass-table shadow-sm">
+
                         <thead class="table-light">
                             <tr>
                                 <th>EAN</th>
